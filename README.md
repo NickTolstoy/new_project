@@ -23,8 +23,8 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/your-username/ev-service-site.git
-cd ev-service-site
+git clone https://github.com/NickTolstoy/new_project.git
+cd new_project
 
 # Установка зависимостей
 npm install
@@ -103,4 +103,4 @@ npm run build
 
 ## Лицензия
 
-Все права защищены, 2024. 
+Все права защищены, 2024.
