@@ -1,0 +1,93 @@
+name: CI/CD для сайта ev-service-site
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Установка Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Установка зависимостей
+        run: npm ci
+      - name: Запуск линтера
+        run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v3
+      - name: Установка Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Установка зависимостей
+        run: npm ci
+      - name: Сборка проекта
+        run: npm run build
+      - name: Сохранение артефактов сборки
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-files
+          path: dist/
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - name: Установка Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      - name: Установка зависимостей
+        run: npm ci
+      - name: Запуск юнит-тестов
+        run: npm test
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Загрузка артефактов сборки
+        uses: actions/download-artifact@v3
+        with:
+          name: build-files
+          path: dist/
+      
+      # Деплой на сервер (пример с использованием DigitalOcean)
+      - name: Установка doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      
+      - name: Сборка и отправка Docker-образа
+        run: |
+          doctl registry login
+          docker build -t registry.digitalocean.com/ev-service/app:$(echo $GITHUB_SHA | head -c7) .
+          docker push registry.digitalocean.com/ev-service/app:$(echo $GITHUB_SHA | head -c7)
+      
+      # Обновляем приложение на сервере через SSH
+      - name: Обновление приложения на сервере
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd /var/www/ev-service-site
+            docker-compose pull
+            docker-compose up -d 

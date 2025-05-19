@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Manrope', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-bg-primary text-text-primary;
+    font-feature-settings: "ss01", "ss03";
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+  
+  .glass-card {
+    @apply bg-opacity-20 bg-bg-secondary backdrop-blur-glass border border-white/10 rounded-xl;
+  }
+  
+  .neon-shadow {
+    @apply shadow-neon;
+  }
+  
+  .neon-green-shadow {
+    @apply shadow-neon-green;
+  }
+  
+  .glass-btn {
+    @apply px-6 py-3 rounded-full bg-opacity-30 bg-bg-secondary backdrop-blur-glass 
+           border border-accent-blue/30 text-text-primary font-semibold
+           transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon;
+  }
+  
+  .cta-btn {
+    @apply px-6 py-3 rounded-full bg-gradient-to-r from-accent-blue to-accent-green 
+           text-text-primary font-bold transition-all duration-300 
+           hover:shadow-neon hover:scale-105;
+  }
+  
+  .loading {
+    @apply fixed inset-0 flex items-center justify-center bg-bg-primary text-accent-blue text-xl;
+  }
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+} 
