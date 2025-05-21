@@ -6,52 +6,59 @@ interface Service {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  imageSrc: string;
   slug: string;
 }
 
 const services: Service[] = [
   {
     id: '1',
-    title: 'Ремонт высоковольтной батареи',
-    description: 'Восстановление и ремонт батарей любой сложности с гарантией и спецоборудованием',
-    icon: 'battery',
-    slug: 'battery-repair'
-  },
-  {
-    id: '2',
-    title: 'Диагностика электромобиля',
-    description: 'Полная компьютерная диагностика всех систем электромобиля с выявлением неисправностей',
-    icon: 'diagnostics',
+    title: 'Компьютерная диагностика',
+    description: 'Полная диагностика электронных систем электромобиля с выявлением и устранением ошибок',
+    imageSrc: '/images/services/Компьютерная диагностика.webp',
     slug: 'diagnostics'
   },
   {
+    id: '2',
+    title: 'Замена масляного фильтра',
+    description: 'Профессиональная замена масляного фильтра и масла с использованием высококачественных материалов',
+    imageSrc: '/images/services/Замена масляного фильтра.webp',
+    slug: 'oil-filter'
+  },
+  {
     id: '3',
-    title: 'Обновление программного обеспечения',
-    description: 'Установка актуальных версий ПО, прошивка и настройка систем управления',
-    icon: 'software',
-    slug: 'software'
+    title: 'Обслуживание тормозной системы',
+    description: 'Замена тормозных колодок, дисков и комплексное обслуживание тормозной системы электромобиля',
+    imageSrc: '/images/services/brake-service.webp',
+    slug: 'brake-service'
   },
   {
     id: '4',
-    title: 'Ремонт электродвигателя',
-    description: 'Диагностика и ремонт тяговых электродвигателей с восстановлением функциональности',
-    icon: 'motor',
-    slug: 'electric-motor'
+    title: 'Работа с силовым аккумулятором',
+    description: 'Диагностика, ремонт и восстановление высоковольтных батарей с восстановлением емкости',
+    imageSrc: '/images/services/Работа с силовым аккумулятором.webp',
+    slug: 'battery-service'
   },
   {
     id: '5',
-    title: 'Обслуживание подвески',
-    description: 'Ремонт и настройка ходовой части с учетом особенностей электромобилей',
-    icon: 'chassis',
-    slug: 'chassis'
+    title: 'Обслуживание трансмиссии',
+    description: 'Ремонт и техническое обслуживание трансмиссии электромобиля для максимальной эффективности',
+    imageSrc: '/images/services/Обслуживание трансмиссии.webp',
+    slug: 'transmission'
   },
   {
     id: '6',
-    title: 'Обслуживание зарядных станций',
-    description: 'Установка, настройка и ремонт зарядного оборудования всех типов',
-    icon: 'charging',
-    slug: 'charging'
+    title: 'Обслуживание кондиционера',
+    description: 'Заправка, диагностика и ремонт системы кондиционирования для комфортной эксплуатации',
+    imageSrc: '/images/services/air-conditioning.webp',
+    slug: 'air-conditioning'
+  },
+  {
+    id: '7',
+    title: 'Кузовные работы',
+    description: 'Устранение повреждений кузова, восстановление геометрии и покраска с соблюдением заводских стандартов',
+    imageSrc: '/images/services/Кузовные работы.webp',
+    slug: 'body-repair'
   }
 ];
 
@@ -71,57 +78,12 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-// Компонент иконки (примерный)
-const ServiceIcon = ({ type }: { type: string }) => {
-  switch (type) {
-    case 'battery':
-      return (
-        <svg className="w-10 h-10 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7h10a2 2 0 012 2v6a2 2 0 01-2 2H3a2 2 0 01-2-2V9a2 2 0 012-2zm14 0h4a2 2 0 012 2v6a2 2 0 01-2 2h-4m-8-5v2m2-2v2" />
-        </svg>
-      );
-    case 'diagnostics':
-      return (
-        <svg className="w-10 h-10 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-        </svg>
-      );
-    case 'software':
-      return (
-        <svg className="w-10 h-10 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      );
-    case 'motor':
-      return (
-        <svg className="w-10 h-10 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      );
-    case 'chassis':
-      return (
-        <svg className="w-10 h-10 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      );
-    case 'charging':
-      return (
-        <svg className="w-10 h-10 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      );
-    default:
-      return null;
-  }
-};
-
 const ServiceCards = () => {
   return (
-    <section className="py-16 md:py-24">
+    <section className="pt-0 pb-8 md:pb-12">
       <div className="container">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Наши услуги</h2>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Наши услуги</h2>
           <p className="text-text-secondary text-lg max-w-3xl mx-auto">
             Полный спектр услуг по обслуживанию электромобилей любых марок. 
             Работаем с Tesla, Nissan, BMW, Audi, Jaguar, Porsche и другими.
@@ -142,11 +104,18 @@ const ServiceCards = () => {
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
               className="glass-card p-6 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-neon"
             >
-              <div className="bg-bg-secondary/50 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                <ServiceIcon type={service.icon} />
+              <div className="flex items-center mb-6">
+                <div className="bg-bg-secondary/40 rounded-full w-16 h-16 flex items-center justify-center overflow-hidden mr-3 shadow-sm border border-white/5">
+                  <img 
+                    src={service.imageSrc} 
+                    alt={service.title} 
+                    style={{ width: '45px', height: '45px' }}
+                    className="object-contain"
+                    loading="lazy"
+                  />
+                </div>
+                <h3 className="text-xl font-bold">{service.title}</h3>
               </div>
-              
-              <h3 className="text-xl font-bold mb-2">{service.title}</h3>
               <p className="text-text-secondary mb-6">{service.description}</p>
               
               <Link 

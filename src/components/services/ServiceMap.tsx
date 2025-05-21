@@ -135,7 +135,7 @@ const ServiceMap: React.FC<ServiceMapProps> = ({
             
             {/* Названия районов */}
             <text x="200" y="120" textAnchor="middle" fill="#FFFFFF" fontSize="10" fontWeight="bold">
-              ЭлектроСервис
+              АвтосервисЛюбань
             </text>
           </svg>
         </div>

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { getReviews } from '../../utils/reviewsService'
 
 interface Review {
   id: string;
@@ -10,75 +11,72 @@ interface Review {
   text: string;
   rating: number;
   date: string;
+  verified: boolean;
 }
-
-const reviews: Review[] = [
-  {
-    id: '1',
-    author: 'Александр К.',
-    car: 'Tesla Model 3',
-    service: 'Ремонт батареи',
-    text: 'Обратился после падения емкости батареи на 30%. Диагностировали проблему за пару часов и быстро устранили. Автомобиль снова получил практически оригинальный запас хода. Очень доволен работой!',
-    rating: 5,
-    date: '15.10.2023'
-  },
-  {
-    id: '2',
-    author: 'Елена В.',
-    car: 'Nissan Leaf',
-    service: 'Обновление ПО',
-    text: 'Обновили программное обеспечение и настроили все системы. Машина стала намного адекватнее реагировать на педаль акселератора и точнее показывать остаток хода. Спасибо за профессионализм!',
-    rating: 5,
-    date: '03.11.2023'
-  },
-  {
-    id: '3',
-    author: 'Михаил Д.',
-    car: 'Audi e-tron',
-    service: 'Диагностика',
-    text: 'Появился странный шум при разгоне. В официальном сервисе сказали менять мотор, но ребята из ЭлектроСервиса нашли настоящую причину - ослабление крепления редуктора. Сэкономили мне кучу денег!',
-    rating: 5,
-    date: '27.09.2023'
-  },
-  {
-    id: '4',
-    author: 'Станислав П.',
-    car: 'Jaguar I-Pace',
-    service: 'Комплексное обслуживание',
-    text: 'Делал комплексное ТО после покупки подержанного I-Pace. Обнаружили и устранили несколько скрытых проблем, которые могли бы превратиться в серьезные поломки. Грамотная диагностика и ремонт.',
-    rating: 4,
-    date: '19.10.2023'
-  },
-  {
-    id: '5',
-    author: 'Ольга М.',
-    car: 'BYD Han',
-    service: 'Зарядный порт',
-    text: 'Обращалась с проблемой медленной зарядки и периодическими отключениями. Диагностировали проблему, отремонтировали порт зарядки. Теперь все работает идеально, заряжается в два раза быстрее!',
-    rating: 5,
-    date: '05.11.2023'
-  }
-];
 
 const Reviews = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   
+  useEffect(() => {
+    // Загрузка отзывов с сервера при монтировании компонента
+    const fetchReviews = async () => {
+      try {
+        setIsLoading(true);
+        const serverReviews = await getReviews();
+        
+        if (serverReviews && serverReviews.length > 0) {
+          // Преобразуем данные в нужный формат
+          const formattedReviews = serverReviews.map(review => ({
+            id: String(review.id),
+            author: review.author,
+            car: review.car,
+            service: review.service,
+            text: review.text,
+            rating: review.rating,
+            date: review.date,
+            verified: true // Все отзывы с сервера уже верифицированы
+          }));
+          
+          setReviews(formattedReviews);
+        } else {
+          // Если отзывов нет или произошла ошибка, показываем пустой массив
+          setReviews([]);
+        }
+      } catch (error) {
+        console.error('Ошибка при получении отзывов:', error);
+        setReviews([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchReviews();
+  }, []);
+  
   const nextReview = () => {
-    setActiveIndex((prev) => (prev + 1) % reviews.length);
+    if (reviews.length > 0) {
+      setActiveIndex((prev) => (prev + 1) % reviews.length);
+    }
   };
   
   const prevReview = () => {
-    setActiveIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+    if (reviews.length > 0) {
+      setActiveIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+    }
   };
   
   useEffect(() => {
-    const interval = setInterval(() => {
-      nextReview();
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, []);
+    if (reviews.length > 0) {
+      const interval = setInterval(() => {
+        nextReview();
+      }, 5000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [reviews.length]);
   
   // Функция для отображения звезд рейтинга
   const renderStars = (rating: number) => {
@@ -93,6 +91,49 @@ const Reviews = () => {
       </svg>
     ));
   };
+  
+  // Показываем загрузку, если данные еще не получены
+  if (isLoading) {
+    return (
+      <section className="py-16 md:py-24 bg-bg-secondary">
+        <div className="container">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Отзывы клиентов</h2>
+            <p className="text-text-secondary text-lg max-w-3xl mx-auto">
+              Загрузка отзывов...
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
+  // Если отзывов нет, показываем специальное сообщение
+  if (reviews.length === 0) {
+    return (
+      <section className="py-16 md:py-24 bg-bg-secondary">
+        <div className="container">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Отзывы клиентов</h2>
+            <p className="text-text-secondary text-lg max-w-3xl mx-auto">
+              Мы работаем над тем, чтобы собрать отзывы наших клиентов. Скоро здесь будут опубликованы реальные истории.
+            </p>
+          </div>
+          <div className="text-center mt-8">
+            <Link 
+              to="/reviews" 
+              className="px-8 py-4 rounded-full bg-opacity-30 bg-bg-secondary backdrop-blur-glass border border-accent-blue/30 text-text-primary font-semibold transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon inline-flex items-center"
+            >
+              Оставить отзыв
+              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
   
   return (
     <section className="py-16 md:py-24 bg-bg-secondary">

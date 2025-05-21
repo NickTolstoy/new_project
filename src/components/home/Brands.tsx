@@ -1,9 +1,9 @@
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion, Variants } from 'framer-motion'
 import { Link } from 'react-router-dom'
 
 // Анимация контейнера
-const container = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -15,9 +15,32 @@ const container = {
 };
 
 // Анимация элементов
-const item = {
+const item: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0 }
+};
+
+// Анимация буквы на hover
+const letterVariants: Variants = {
+  hover: { 
+    scale: 1.2, 
+    rotate: [0, -5, 5, -5, 0],
+    transition: { 
+      scale: { duration: 0.3 },
+      rotate: { duration: 0.5, repeat: Infinity, repeatType: "reverse" } 
+    }
+  }
+};
+
+// Анимация фона карточки
+const cardBackgroundVariants: Variants = {
+  initial: {
+    backgroundPosition: '0% 50%',
+  },
+  hover: {
+    backgroundPosition: '100% 50%',
+    transition: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+  }
 };
 
 const Brands = () => {
@@ -57,16 +80,33 @@ const Brands = () => {
             <motion.div
               key={brand.id}
               variants={item}
-              whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-              className="glass-card p-8 rounded-xl flex flex-col items-center justify-center aspect-square hover:shadow-neon transition-all duration-300"
+              initial="initial"
+              whileHover="hover"
+              className="glass-card p-8 rounded-xl flex flex-col items-center justify-center aspect-square hover:shadow-neon transition-all duration-300 relative overflow-hidden group"
             >
-              <span 
-                className="text-4xl md:text-5xl font-bold"
-                style={{ color: brand.color }}
-              >
-                {brand.name.charAt(0)}
-              </span>
-              <span className="text-xl mt-3 font-medium">{brand.name}</span>
+              {/* Градиентный фон с анимацией */}
+              <motion.div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-20 bg-gradient-to-r from-accent-blue via-accent-green to-accent-blue"
+                variants={cardBackgroundVariants}
+              />
+              
+              {/* Внутренняя окантовка с мерцанием */}
+              <div className="absolute inset-3 rounded-lg border border-white/0 group-hover:border-accent-blue/30 transition-all duration-500" />
+              
+              {/* Содержимое */}
+              <div className="relative z-10 flex flex-col items-center">
+                <motion.span 
+                  className="text-4xl md:text-5xl font-bold transition-all duration-300 group-hover:text-shadow-glow"
+                  style={{ color: brand.color }}
+                  variants={letterVariants}
+                >
+                  {brand.name.charAt(0)}
+                </motion.span>
+                <span className="text-xl mt-3 font-medium transform transition-all duration-300 group-hover:translate-y-1">{brand.name}</span>
+              </div>
+              
+              {/* Декоративный элемент */}
+              <div className="absolute bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent-blue/30 to-transparent scale-x-0 group-hover:scale-x-100 transition-all duration-500" />
             </motion.div>
           ))}
         </motion.div>

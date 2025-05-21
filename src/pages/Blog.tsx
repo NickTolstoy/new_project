@@ -93,7 +93,7 @@ const Blog = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   
   useEffect(() => {
-    document.title = 'Блог - ЭлектроСервис'
+    document.title = 'Блог - АвтосервисЛюбань'
     window.scrollTo(0, 0)
   }, []);
   

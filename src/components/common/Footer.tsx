@@ -7,9 +7,9 @@ const Footer = () => {
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">ЭлектроСервис</h3>
+            <h3 className="text-xl font-bold mb-4">АвтосервисЛюбань</h3>
             <p className="text-text-secondary mb-4">
-              Профессиональное обслуживание и ремонт электромобилей в России и СНГ
+              Профессиональное обслуживание и ремонт электромобилей в Любани и Ленинградской области
             </p>
             <div className="flex space-x-4">
               <a href="https://vk.com" target="_blank" rel="noopener noreferrer" aria-label="Вконтакте" className="text-text-secondary hover:text-accent-blue transition-colors">
@@ -85,27 +85,27 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-bold mb-4">Контакты</h3>
             <address className="not-italic">
-              <p className="text-text-secondary mb-2">Москва, ул. Электрозаводская, 27с1A</p>
-              <a href="tel:+78001234567" className="text-text-secondary hover:text-accent-blue transition-colors block mb-2">
-                8 (800) 123-45-67
+              <p className="text-text-secondary mb-2">Любань, Ленинградское шоссе, 118</p>
+              <a href="tel:+78123456789" className="text-text-secondary hover:text-accent-blue transition-colors block mb-2">
+                8 (812) 345-67-89
               </a>
-              <a href="mailto:info@ev-service.ru" className="text-text-secondary hover:text-accent-blue transition-colors block mb-2">
-                info@ev-service.ru
+              <a href="mailto:info@autoservice-luban.ru" className="text-text-secondary hover:text-accent-blue transition-colors block mb-2">
+                info@autoservice-luban.ru
               </a>
-              <p className="text-text-secondary">Ежедневно с 9:00 до 21:00</p>
+              <p className="text-text-secondary">Ежедневно с 8:00 до 20:00</p>
             </address>
           </div>
         </div>
         
         <div className="mt-12 pt-8 border-t border-white/10 text-center text-text-secondary text-sm">
-          <p>© {new Date().getFullYear()} ЭлектроСервис. Все права защищены.</p>
+          <p>© {new Date().getFullYear()} АвтосервисЛюбань. Все права защищены.</p>
         </div>
       </div>
       
       {/* Мобильная кнопка "Позвонить" */}
       <div className="fixed bottom-4 left-0 right-0 z-40 md:hidden flex justify-center">
         <a 
-          href="tel:+78001234567" 
+          href="tel:+78123456789" 
           className="px-6 py-3 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold flex items-center space-x-2 transition-all duration-300 hover:shadow-neon hover:scale-105"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

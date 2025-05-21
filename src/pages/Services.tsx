@@ -6,7 +6,7 @@ interface Service {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  imageSrc: string;
   slug: string;
   price: string;
   features: string[];
@@ -15,122 +15,122 @@ interface Service {
 const services: Service[] = [
   {
     id: '1',
-    title: 'Ремонт высоковольтной батареи',
-    description: 'Восстановление и ремонт батарей любой сложности с гарантией и специализированным оборудованием',
-    icon: 'battery',
-    slug: 'battery-repair',
-    price: 'от 15 000 ₽',
+    title: 'Компьютерная диагностика',
+    description: 'Полная компьютерная диагностика всех систем электромобиля с определением неисправностей',
+    imageSrc: '/images/services/Компьютерная диагностика.webp',
+    slug: 'diagnostics',
+    price: '4 000 ₽',
     features: [
-      'Диагностика состояния батареи',
-      'Восстановление емкости',
-      'Замена отдельных ячеек',
-      'Ремонт BMS (системы управления батареей)',
-      'Термостабилизация элементов'
+      'Проверка всех электронных систем',
+      'Диагностика двигателя и трансмиссии',
+      'Проверка систем безопасности',
+      'Анализ кодов ошибок',
+      'Подробный отчет о состоянии автомобиля'
     ]
   },
   {
     id: '2',
-    title: 'Диагностика электромобиля',
-    description: 'Полная компьютерная диагностика всех систем электромобиля с выявлением неисправностей',
-    icon: 'diagnostics',
-    slug: 'diagnostics',
-    price: 'от 3 500 ₽',
+    title: 'Замена масляного фильтра',
+    description: 'Диагностика и замена масляного фильтра с использованием качественных материалов',
+    imageSrc: '/images/services/Замена масляного фильтра.webp',
+    slug: 'oil-filter',
+    price: '8 000 ₽',
     features: [
-      'Проверка высоковольтной системы',
-      'Диагностика силовой электроники',
-      'Проверка систем безопасности',
-      'Анализ программного обеспечения',
-      'Подробный отчет о состоянии систем'
+      'Диагностика состояния фильтра',
+      'Использование качественных материалов',
+      'Проверка уровня масла',
+      'Утилизация старого фильтра',
+      'Проверка системы после замены'
     ]
   },
   {
     id: '3',
-    title: 'Обновление программного обеспечения',
-    description: 'Установка актуальных версий ПО, прошивка и настройка систем управления',
-    icon: 'software',
-    slug: 'software',
-    price: 'от 5 000 ₽',
+    title: 'Обслуживание тормозной системы',
+    description: 'Диагностика, замена колодок и тормозной жидкости для обеспечения безопасности',
+    imageSrc: '/images/services/brake-service.webp',
+    slug: 'brake-service',
+    price: 'от 4 000 ₽',
     features: [
-      'Обновление ПО основного компьютера',
-      'Настройка систем помощи водителю',
-      'Оптимизация энергопотребления',
-      'Разблокировка скрытых функций',
-      'Установка кастомных прошивок'
+      'Замена передних тормозных колодок (4 000 ₽)',
+      'Замена задних тормозных колодок (6 000 ₽)',
+      'Замена тормозной жидкости (8 000 ₽)',
+      'Диагностика тормозной системы',
+      'Проверка эффективности торможения'
     ]
   },
   {
     id: '4',
-    title: 'Ремонт электродвигателя',
-    description: 'Диагностика и ремонт тяговых электродвигателей с восстановлением функциональности',
-    icon: 'motor',
-    slug: 'electric-motor',
-    price: 'от 20 000 ₽',
+    title: 'Работа с силовым аккумулятором',
+    description: 'Профессиональное обслуживание и ремонт высоковольтной батареи электромобиля',
+    imageSrc: '/images/services/Работа с силовым аккумулятором.webp',
+    slug: 'battery-service',
+    price: 'от 5 000 ₽',
     features: [
-      'Диагностика мотора',
-      'Замена подшипников',
-      'Ремонт обмоток',
-      'Восстановление инвертора',
-      'Балансировка ротора'
+      'Замена аккумулятора низкого напряжения (5 000 ₽)',
+      'Диагностика состояния высоковольтной батареи',
+      'Разборка и сборка силового аккумуляторного блока (30 000 ₽)',
+      'Восстановление ёмкости',
+      'Ремонт системы охлаждения батареи'
     ]
   },
   {
     id: '5',
-    title: 'Обслуживание подвески',
-    description: 'Ремонт и настройка ходовой части с учетом особенностей электромобилей',
-    icon: 'chassis',
-    slug: 'chassis',
-    price: 'от 8 000 ₽',
+    title: 'Обслуживание трансмиссии',
+    description: 'Замена масла и обслуживание узлов трансмиссии электромобиля',
+    imageSrc: '/images/services/Обслуживание трансмиссии.webp',
+    slug: 'transmission',
+    price: 'от 4 000 ₽',
     features: [
-      'Диагностика подвески',
-      'Замена амортизаторов',
-      'Регулировка углов установки',
-      'Ремонт пневмоподвески',
-      'Балансировка колес'
+      'Замена масла в заднем мосту (4 000 ₽)',
+      'Замена масла в редукторе переднего моста (10 000 ₽)',
+      'Замена трансмиссионного масла (10 000 ₽)',
+      'Диагностика трансмиссии',
+      'Проверка работы электродвигателя'
     ]
   },
   {
     id: '6',
-    title: 'Обслуживание зарядных станций',
-    description: 'Установка, настройка и ремонт зарядного оборудования всех типов',
-    icon: 'charging',
-    slug: 'charging',
-    price: 'от 4 500 ₽',
+    title: 'Обслуживание кондиционера',
+    description: 'Диагностика, заправка и ремонт системы кондиционирования',
+    imageSrc: '/images/services/air-conditioning.webp',
+    slug: 'air-conditioning',
+    price: '10 000 ₽',
     features: [
-      'Монтаж зарядных станций',
-      'Настройка и интеграция',
-      'Диагностика неисправностей',
-      'Ремонт зарядных портов',
-      'Обновление ПО зарядных устройств'
+      'Удаление и добавление хладагента',
+      'Диагностика системы кондиционирования',
+      'Очистка системы вентиляции',
+      'Замена салонного фильтра',
+      'Проверка работы после обслуживания'
     ]
   },
   {
     id: '7',
-    title: 'Профилактические работы',
-    description: 'Комплексное техническое обслуживание электромобиля для поддержания его в идеальном состоянии',
-    icon: 'maintenance',
-    slug: 'maintenance',
-    price: 'от 7 000 ₽',
+    title: 'Кузовные работы',
+    description: 'Ремонт и обслуживание кузовных элементов электромобиля',
+    imageSrc: '/images/services/Кузовные работы.webp',
+    slug: 'coolant',
+    price: '8 000 ₽',
     features: [
-      'Замена фильтров',
-      'Проверка тормозной системы',
-      'Диагностика электронных компонентов',
-      'Замена технических жидкостей',
-      'Проверка высоковольтных систем'
+      'Слив старой охлаждающей жидкости',
+      'Промывка системы охлаждения',
+      'Заправка новым антифризом',
+      'Проверка на утечки',
+      'Контроль работы системы охлаждения'
     ]
   },
   {
     id: '8',
-    title: 'Кузовной ремонт',
-    description: 'Восстановление кузова электромобиля с учетом особенностей конструкции и безопасности',
-    icon: 'body',
+    title: 'Замена антифриза',
+    description: 'Полная замена охлаждающей жидкости в системе термоменеджмента',
+    imageSrc: '/images/services/Кузовные работы.webp', // Временно используем доступное изображение
     slug: 'body-repair',
-    price: 'от 10 000 ₽',
+    price: '8 000 ₽',
     features: [
+      'Снятие и сборка переднего бампера',
+      'Диагностика кузова на повреждения',
+      'Ремонт небольших повреждений',
       'Восстановление геометрии кузова',
-      'Покраска с подбором цвета',
-      'Ремонт алюминиевых элементов',
-      'Полировка и детейлинг',
-      'Антикоррозийная обработка'
+      'Защита от коррозии'
     ]
   }
 ];
@@ -151,66 +151,11 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
-// Компонент иконки (примерный)
-const ServiceIcon = ({ type }: { type: string }) => {
-  switch (type) {
-    case 'battery':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7h10a2 2 0 012 2v6a2 2 0 01-2 2H3a2 2 0 01-2-2V9a2 2 0 012-2zm14 0h4a2 2 0 012 2v6a2 2 0 01-2 2h-4m-8-5v2m2-2v2" />
-        </svg>
-      );
-    case 'diagnostics':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-        </svg>
-      );
-    case 'software':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      );
-    case 'motor':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      );
-    case 'chassis':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      );
-    case 'charging':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      );
-    case 'maintenance':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-        </svg>
-      );
-    case 'body':
-      return (
-        <svg className="w-12 h-12 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-        </svg>
-      );
-    default:
-      return null;
-  }
-};
+
 
 const Services = () => {
   useEffect(() => {
-    document.title = 'Услуги - ЭлектроСервис'
+    document.title = 'Услуги - АвтосервисЛюбань'
     window.scrollTo(0, 0)
   }, [])
   
@@ -287,8 +232,14 @@ const Services = () => {
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="bg-bg-secondary/50 rounded-full w-16 h-16 flex items-center justify-center">
-                      <ServiceIcon type={service.icon} />
+                    <div className="bg-bg-secondary/40 rounded-full w-16 h-16 flex items-center justify-center overflow-hidden border border-white/5 shadow-sm">
+                      <img 
+                        src={service.imageSrc}
+                        alt={service.title}
+                        style={{ width: '45px', height: '45px' }}
+                        className="object-contain"
+                        loading="lazy"
+                      />
                     </div>
                     <div className="glass-card px-4 py-2 rounded-full">
                       <span className="text-accent-blue font-bold">{service.price}</span>

@@ -1,0 +1,6 @@
+# https://www.autoservice-luban.ru/
+
+User-agent: *
+Allow: /
+
+Sitemap: https://www.autoservice-luban.ru/sitemap.xml

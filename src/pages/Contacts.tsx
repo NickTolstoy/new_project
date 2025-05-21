@@ -1,6 +1,18 @@
 import React, { useEffect, useState, FormEvent } from 'react'
 import { motion } from 'framer-motion'
 
+// Определим интерфейс для данных формы локально
+interface ContactFormData {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  carModel: string;
+  service: string;
+  message: string;
+  date: string;
+}
+
 const Contacts = () => {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -10,20 +22,93 @@ const Contacts = () => {
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const [showAdmin, setShowAdmin] = useState(false)
+  const [savedForms, setSavedForms] = useState<ContactFormData[]>([])
+  const [adminPassword, setAdminPassword] = useState('')
+  const [passwordCorrect, setPasswordCorrect] = useState(false)
   
   useEffect(() => {
-    document.title = 'Контакты - ЭлектроСервис'
+    document.title = 'Контакты - АвтосервисЛюбань'
     window.scrollTo(0, 0)
+    
+    // Загрузить сохраненные формы из localStorage
+    const loadForms = () => {
+      const saved = localStorage.getItem('contactForms')
+      if (saved) {
+        try {
+          setSavedForms(JSON.parse(saved))
+        } catch (e) {
+          console.error('Ошибка при загрузке форм из хранилища:', e)
+          localStorage.removeItem('contactForms')
+        }
+      }
+    }
+    
+    loadForms()
+    
+    // Показ админ-панели по хэшу в URL
+    if (window.location.hash === '#admin') {
+      setShowAdmin(true)
+    }
   }, [])
   
-  const handleSubmit = (e: FormEvent) => {
+  const checkPassword = () => {
+    // Простой пароль для демонстрации
+    if (adminPassword === 'admin123') {
+      setPasswordCorrect(true)
+    } else {
+      alert('Неверный пароль')
+    }
+  }
+  
+  const clearAllForms = () => {
+    if (confirm('Вы уверены, что хотите удалить все заявки?')) {
+      localStorage.removeItem('contactForms')
+      setSavedForms([])
+    }
+  }
+  
+  const deleteForm = (id: string) => {
+    const newForms = savedForms.filter(form => form.id !== id)
+    setSavedForms(newForms)
+    localStorage.setItem('contactForms', JSON.stringify(newForms))
+  }
+  
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     
-    setIsSubmitting(true)
+    // Базовая валидация
+    if (!name.trim() || !phone.trim()) {
+      setError('Необходимо указать имя и телефон')
+      return
+    }
     
-    // Имитация отправки формы (в реальном приложении здесь был бы запрос к API)
+    setIsSubmitting(true)
+    setError('')
+    
+    // Имитация отправки данных (задержка 1.5 секунды)
     setTimeout(() => {
-      setIsSubmitting(false)
+      // Создаем новую форму с ID и датой
+      const newForm: ContactFormData = {
+        id: Date.now().toString(),
+        name,
+        phone,
+        email,
+        carModel,
+        service,
+        message,
+        date: new Date().toLocaleString('ru')
+      }
+      
+      // Сохраняем в localStorage
+      const forms = [...savedForms, newForm]
+      localStorage.setItem('contactForms', JSON.stringify(forms))
+      setSavedForms(forms)
+      
+      console.log('Форма сохранена:', newForm)
+      
+      // Имитация успешной отправки
       setIsSubmitted(true)
       
       // Очистка формы
@@ -38,11 +123,94 @@ const Contacts = () => {
       setTimeout(() => {
         setIsSubmitted(false)
       }, 5000)
+      
+      setIsSubmitting(false)
     }, 1500)
+  }
+  
+  const serviceLabels: Record<string, string> = {
+    'battery': 'Ремонт батареи',
+    'diagnostics': 'Диагностика',
+    'software': 'Обновление ПО',
+    'engine': 'Ремонт двигателя',
+    'charging': 'Обслуживание зарядных станций',
+    'other': 'Другое',
+    '': 'Не указано'
   }
   
   return (
     <>
+      {/* Админ-панель */}
+      {showAdmin && (
+        <section className="py-8 bg-bg-secondary">
+          <div className="container">
+            <div className="glass-card p-8 rounded-xl">
+              <h2 className="text-2xl font-bold mb-6">Панель управления заявками</h2>
+              
+              {!passwordCorrect ? (
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="password"
+                    placeholder="Введите пароль"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    className="px-4 py-2 bg-bg-secondary/50 rounded-lg border border-white/10"
+                  />
+                  <button
+                    onClick={checkPassword}
+                    className="px-4 py-2 rounded-lg bg-accent-blue text-white"
+                  >
+                    Войти
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-semibold">Список заявок: {savedForms.length}</h3>
+                    <button
+                      onClick={clearAllForms}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                    >
+                      Очистить все
+                    </button>
+                  </div>
+                  
+                  {savedForms.length === 0 ? (
+                    <div className="text-center py-8 text-text-secondary">
+                      Нет сохраненных заявок
+                    </div>
+                  ) : (
+                    <div className="overflow-auto max-h-96">
+                      {savedForms.map(form => (
+                        <div key={form.id} className="glass-card p-4 mb-4 rounded-lg">
+                          <div className="flex justify-between">
+                            <div className="text-lg font-semibold">{form.name}</div>
+                            <button
+                              onClick={() => deleteForm(form.id)}
+                              className="text-red-400 hover:text-red-500"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 mt-2">
+                            <div><span className="text-text-secondary">Телефон:</span> {form.phone}</div>
+                            <div><span className="text-text-secondary">Email:</span> {form.email || 'Не указан'}</div>
+                            <div><span className="text-text-secondary">Модель:</span> {form.carModel || 'Не указана'}</div>
+                            <div><span className="text-text-secondary">Услуга:</span> {serviceLabels[form.service]}</div>
+                            <div className="col-span-2"><span className="text-text-secondary">Сообщение:</span> {form.message || 'Нет сообщения'}</div>
+                            <div className="col-span-2 text-right text-sm text-text-secondary">{form.date}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+      
       {/* Шапка страницы */}
       <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-bg-secondary">
         <div className="container">
@@ -85,6 +253,12 @@ const Contacts = () => {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit}>
+                    {error && (
+                      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6 text-center">
+                        <p className="text-red-400">{error}</p>
+                      </div>
+                    )}
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <div>
                         <label htmlFor="name" className="block text-text-secondary mb-2">Имя *</label>
@@ -238,7 +412,7 @@ const Contacts = () => {
                       </div>
                       <div>
                         <h3 className="font-bold mb-1">Email</h3>
-                        <a href="mailto:info@ev-service.ru" className="text-text-secondary hover:text-accent-blue transition-colors">info@ev-service.ru</a>
+                        <a href="mailto:nickteamofpro@yandex.ru" className="text-text-secondary hover:text-accent-blue transition-colors">nickteamofpro@yandex.ru</a>
                       </div>
                     </div>
                   </div>

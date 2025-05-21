@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест отображения отзывов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .review {
+            margin-bottom: 20px;
+            padding: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .verified {
+            border-color: #4caf50;
+            background-color: #e8f5e9;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .author {
+            font-weight: bold;
+        }
+        .stars {
+            color: #ffc107;
+        }
+        .date {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .verified-badge {
+            display: inline-block;
+            background-color: #4caf50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        .details {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #272727;
+            color: #fff;
+            border-radius: 4px;
+            font-family: monospace;
+            overflow-x: auto;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тест отображения отзывов</h1>
+        
+        <div>
+            <button id="loadBtn">Загрузить отзывы</button>
+            <button id="clearBtn">Очистить</button>
+        </div>
+        
+        <div id="reviews"></div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        const reviewsContainer = document.getElementById('reviews');
+        const logContainer = document.getElementById('log');
+        
+        // Логирование сообщений
+        function log(message, type = 'info') {
+            const date = new Date();
+            const timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+            
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? '#ff5252' : type === 'success' ? '#4caf50' : '#fff';
+            div.textContent = `[${timeStr}] ${message}`;
+            
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // Загрузка отзывов
+        async function loadReviews() {
+            try {
+                log('Загрузка отзывов с сервера...');
+                
+                const response = await fetch(`${API_URL}/reviews`);
+                const data = await response.json();
+                
+                log(`Ответ сервера: ${response.status} ${response.statusText}`);
+                
+                if (data.success) {
+                    log(`Получено отзывов: ${data.reviews.length}`, 'success');
+                    
+                    if (data.reviews.length === 0) {
+                        reviewsContainer.innerHTML = '<p>Отзывов не найдено.</p>';
+                        return;
+                    }
+                    
+                    // Очищаем контейнер перед добавлением новых отзывов
+                    reviewsContainer.innerHTML = '';
+                    
+                    // Отображаем каждый отзыв
+                    data.reviews.forEach(review => {
+                        log(`Обработка отзыва ID: ${review.id}, verified: ${review.verified}, тип: ${typeof review.verified}`);
+                        
+                        // Проверяем и преобразуем verified
+                        let isVerified = false;
+                        if (review.verified === true || review.verified === 1 || review.verified === "1") {
+                            isVerified = true;
+                        }
+                        
+                        const reviewElement = document.createElement('div');
+                        reviewElement.className = `review ${isVerified ? 'verified' : ''}`;
+                        
+                        reviewElement.innerHTML = `
+                            <div class="review-header">
+                                <span class="author">${review.author}</span>
+                                <span class="stars">${generateStars(review.rating)}</span>
+                            </div>
+                            <div class="date">${formatDate(review.date)}</div>
+                            ${isVerified ? '<span class="verified-badge">Проверенный отзыв</span>' : ''}
+                            <p>${review.text}</p>
+                            <div class="details">
+                                <div>Автомобиль: ${review.car || 'Не указан'}</div>
+                                <div>Услуга: ${review.service || 'Не указана'}</div>
+                            </div>
+                        `;
+                        
+                        reviewsContainer.appendChild(reviewElement);
+                    });
+                } else {
+                    log(`Ошибка при получении отзывов: ${data.message || 'Неизвестная ошибка'}`, 'error');
+                    reviewsContainer.innerHTML = '<p>Ошибка при загрузке отзывов.</p>';
+                }
+            } catch (error) {
+                log(`Ошибка: ${error.message}`, 'error');
+                reviewsContainer.innerHTML = '<p>Ошибка при загрузке отзывов.</p>';
+            }
+        }
+        
+        // Генерация звездного рейтинга
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += i <= rating ? '★' : '☆';
+            }
+            return stars;
+        }
+        
+        // Форматирование даты
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(dateString);
+            
+            if (isNaN(date.getTime())) {
+                return 'Недавно';
+            }
+            
+            return date.toLocaleDateString('ru-RU', options);
+        }
+        
+        // События кнопок
+        document.getElementById('loadBtn').addEventListener('click', loadReviews);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            reviewsContainer.innerHTML = '';
+            logContainer.innerHTML = '';
+            log('Очищено.');
+        });
+        
+        // Автоматическая загрузка при открытии страницы
+        window.addEventListener('DOMContentLoaded', loadReviews);
+    </script>
+</body>
+</html> 

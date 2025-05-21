@@ -6,7 +6,7 @@ import FAQ from '../components/services/FAQ'
 
 const Brands = () => {
   useEffect(() => {
-    document.title = 'Бренды электромобилей - ЭлектроСервис'
+    document.title = 'Бренды электромобилей - АвтосервисЛюбань'
     window.scrollTo(0, 0)
   }, [])
   

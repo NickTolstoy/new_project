@@ -13,7 +13,7 @@ const brands: Brand[] = [
   {
     id: 1,
     name: 'Tesla',
-    logo: '/images/brands/tesla.svg',
+    logo: '/images/brands/tesla.webp',
     color: '#E82127',
     models: ['Model S', 'Model 3', 'Model X', 'Model Y', 'Cybertruck']
   },

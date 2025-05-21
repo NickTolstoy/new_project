@@ -5,7 +5,7 @@ import { faqItems } from '../components/services/FAQ'
 
 const FAQPage = () => {
   useEffect(() => {
-    document.title = 'Часто задаваемые вопросы - ЭлектроСервис'
+    document.title = 'Часто задаваемые вопросы - АвтосервисЛюбань'
     window.scrollTo(0, 0)
   }, [])
   

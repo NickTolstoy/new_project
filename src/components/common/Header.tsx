@@ -33,8 +33,9 @@ const Header = () => {
       }`}
     >
       <div className="container flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-text-primary">
-          Электро<span className="text-accent-blue">Сервис</span>
+        <Link to="/" className="text-2xl font-bold text-text-primary flex items-center">
+          <img src="/images/logo/logo.webp" alt="АвтосервисЛюбань" className="h-10 mr-3" />
+          Автосервис<span className="text-accent-blue">Любань</span>
         </Link>
         
         {/* Десктопное меню */}

@@ -83,7 +83,7 @@ const BlogPostPage = () => {
     // В реальном приложении здесь был бы API запрос
     if (slug && blogData[slug]) {
       setPost(blogData[slug]);
-      document.title = `${blogData[slug].title} - ЭлектроСервис`;
+      document.title = `${blogData[slug].title} - АвтосервисЛюбань`;
       
       // Загрузка связанных статей
       if (blogData[slug].relatedPosts && blogData[slug].relatedPosts.length > 0) {

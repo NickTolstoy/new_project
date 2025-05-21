@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Сервис Электромобилей',
-        short_name: 'ЭлектроСервис',
+        name: 'Автосервис электромобилей',
+        short_name: 'АвтосервисЛюбань',
         description: 'Обслуживание и ремонт электромобилей',
         theme_color: '#0D0D0F',
         background_color: '#0D0D0F',
@@ -42,4 +42,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      // Перенаправление запросов с /api на сервер на порту 8000
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path
+      }
+    }
+  }
 }); 

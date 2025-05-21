@@ -43,6 +43,10 @@
            hover:shadow-neon hover:scale-105;
   }
   
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent-blue to-accent-green;
+  }
+  
   .loading {
     @apply fixed inset-0 flex items-center justify-center bg-bg-primary text-accent-blue text-xl;
   }

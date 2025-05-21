@@ -1,0 +1,13 @@
+{
+  "name": "debug-api",
+  "version": "1.0.0",
+  "description": "Отладка API отзывов",
+  "main": "debug-api-response.js",
+  "type": "module",
+  "scripts": {
+    "start": "node debug-api-response.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+} 

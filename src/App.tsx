@@ -18,6 +18,7 @@ const BlogPost = lazy(() => import('./pages/BlogPost'))
 const Contacts = lazy(() => import('./pages/Contacts'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Components = lazy(() => import('./pages/Components'))
+const Admin = lazy(() => import('./pages/Admin'))
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="blog/:slug" element={<BlogPost />} />
           <Route path="contacts" element={<Contacts />} />
           <Route path="components" element={<Components />} />
+          <Route path="admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

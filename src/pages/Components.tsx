@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 
 const Components = () => {
   useEffect(() => {
-    document.title = 'UI Компоненты - ЭлектроСервис'
+    document.title = 'UI Компоненты - АвтосервисЛюбань'
     window.scrollTo(0, 0)
   }, [])
   
