@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import ServiceReviews from '../components/services/ServiceReviews'
 
 // Интерфейс для подробной информации об услуге
 interface ServiceDetail {
@@ -524,6 +525,9 @@ const ServiceDetail = () => {
               </motion.div>
             </div>
           </div>
+          
+          {/* Отзывы по услуге */}
+          <ServiceReviews serviceName={service.title} limit={3} />
         </div>
       </section>
       
