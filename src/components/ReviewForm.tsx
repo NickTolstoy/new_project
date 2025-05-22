@@ -20,7 +20,7 @@ const serviceOptions = [
 
 const ReviewForm = () => {
   const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('+7')
   const [email, setEmail] = useState('')
   const [rating, setRating] = useState(5)
   const [message, setMessage] = useState('')
@@ -64,7 +64,7 @@ const ReviewForm = () => {
     }
     
     // Проверка телефона - должно быть не менее 17 символов в маске +7 (999) 999-99-99
-    if (phone && phone.length < 17) {
+    if (phone && (phone === '+7' || phone.length < 17)) {
       setError('Укажите корректный номер телефона')
       return
     }
