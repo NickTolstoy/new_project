@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { ContactFormData } from '../components/shared/FormComponents'
-import { getAllForms, deleteForm, updateFormStatus, adminLogin } from '../utils/contactFormService'
-import { verifyReview, getReviews, updateReview, deleteReview } from '../utils/reviewsService'
+import { ContactFormData, NewsletterFormData } from '../components/shared/FormComponents'
+import { 
+  getAllForms, 
+  deleteForm, 
+  updateFormStatus, 
+  adminLogin,
+  getAllNewsletterSubscriptions,
+  deleteNewsletterSubscription,
+  updateNewsletterStatus 
+} from '../utils/contactFormService.ts'
+import { verifyReview, getReviews, updateReview, deleteReview } from '../utils/reviewsService.ts'
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -10,9 +18,10 @@ const Admin = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [forms, setForms] = useState<ContactFormData[]>([])
+  const [newsletters, setNewsletters] = useState<NewsletterFormData[]>([])
   const [reviews, setReviews] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('all')
+  const [activeTab, setActiveTab] = useState('newsletter')
   const [processing, setProcessing] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingReview, setEditingReview] = useState<any>(null)
@@ -55,6 +64,51 @@ const Admin = () => {
     navigate('/')
   }
   
+  // Загрузка данных с сервера
+  const loadDataFromServer = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Загружаем контактные формы
+      const serverForms = await getAllForms()
+      console.log('[DEBUG] Загружены формы:', serverForms)
+      setForms(serverForms)
+      
+      // Загружаем подписки на новости
+      console.log('[DEBUG] Начинаем загрузку подписок...')
+      const serverNewsletters = await getAllNewsletterSubscriptions()
+      console.log('[DEBUG] Загружены подписки:', serverNewsletters)
+      setNewsletters(serverNewsletters)
+      
+      // Загружаем отзывы напрямую из базы данных
+      const serverReviews = await getReviews()
+      console.log('[DEBUG] Загружены отзывы:', serverReviews)
+      setReviews(serverReviews)
+      
+    } catch (err) {
+      console.error('[DEBUG] Ошибка при загрузке данных:', err)
+      
+      // Если не удалось загрузить с сервера, пробуем загрузить из localStorage
+      try {
+        const savedFormsJSON = localStorage.getItem('contactForms')
+        if (savedFormsJSON) {
+          const savedForms = JSON.parse(savedFormsJSON)
+          // Сортируем формы по дате отправки (от новых к старым)
+          setForms(savedForms.sort((a: ContactFormData, b: ContactFormData) => {
+            return new Date(b.date || '').getTime() - new Date(a.date || '').getTime()
+          }))
+        } else {
+          setForms([])
+        }
+      } catch (localErr) {
+        console.error('Ошибка при загрузке из localStorage:', localErr)
+        setForms([])
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
   // Получение данных форм с сервера
   useEffect(() => {
     // Проверяем авторизацию
@@ -65,43 +119,7 @@ const Admin = () => {
     
     // Если авторизован, загружаем данные форм с сервера
     if (isAuthenticated) {
-      const loadFormsFromServer = async () => {
-        try {
-          setIsLoading(true)
-          
-          // Загружаем контактные формы
-          const serverForms = await getAllForms()
-          setForms(serverForms)
-          
-          // Загружаем отзывы напрямую из базы данных
-          const serverReviews = await getReviews()
-          setReviews(serverReviews)
-          
-        } catch (err) {
-          console.error('Ошибка при загрузке данных:', err)
-          
-          // Если не удалось загрузить с сервера, попробуем загрузить из localStorage (как резерв)
-          try {
-            const savedFormsJSON = localStorage.getItem('contactForms')
-            if (savedFormsJSON) {
-              const savedForms = JSON.parse(savedFormsJSON)
-              // Сортируем формы по дате отправки (от новых к старым)
-              setForms(savedForms.sort((a: ContactFormData, b: ContactFormData) => {
-                return new Date(b.date).getTime() - new Date(a.date).getTime()
-              }))
-            } else {
-              setForms([])
-            }
-          } catch (localErr) {
-            console.error('Ошибка при загрузке из localStorage:', localErr)
-            setForms([])
-          }
-        } finally {
-          setIsLoading(false)
-        }
-      }
-      
-      loadFormsFromServer()
+      loadDataFromServer()
     } else {
       setIsLoading(false)
     }
@@ -110,7 +128,11 @@ const Admin = () => {
   // Фильтрация форм по типу
   const filteredForms = activeTab === 'all' 
     ? forms 
-    : forms.filter(form => form.formType === activeTab)
+    : activeTab === 'contact'
+      ? forms.filter(form => form.formType === 'popup') // Для вкладки "Обратная связь" - формы с типом "popup"
+      : activeTab === 'service' 
+        ? forms.filter(form => form.formType === 'service' || form.formType === 'contact') // Для вкладки "Запись на сервис" - формы с типом "service" или "contact"
+        : forms.filter(form => form.formType === activeTab);
   
   // Удаление формы через API
   const handleDeleteForm = async (id: string | number) => {
@@ -312,6 +334,56 @@ const Admin = () => {
     }
   }
   
+  // Удаление подписки на новости
+  const handleDeleteNewsletter = async (id: string | number) => {
+    try {
+      if (!confirm('Вы уверены, что хотите удалить эту подписку? Это действие невозможно отменить.')) {
+        return;
+      }
+      
+      setProcessing(true)
+      const success = await deleteNewsletterSubscription(id)
+      
+      if (success) {
+        // Обновляем состояние после успешного удаления
+        const updatedNewsletters = newsletters.filter(item => item.id !== id)
+        setNewsletters(updatedNewsletters)
+        
+        alert('Подписка успешно удалена.')
+      } else {
+        setError('Не удалось удалить подписку. Попробуйте позже.')
+      }
+    } catch (err) {
+      console.error('Ошибка при удалении подписки:', err)
+      setError('Произошла ошибка при удалении подписки')
+    } finally {
+      setProcessing(false)
+    }
+  }
+  
+  // Обновление статуса подписки на новости (активна/неактивна)
+  const handleToggleNewsletterStatus = async (id: string | number, currentStatus: boolean) => {
+    try {
+      setProcessing(true)
+      const success = await updateNewsletterStatus(id, { isActive: !currentStatus })
+      
+      if (success) {
+        // Обновляем состояние после успешного обновления
+        const updatedNewsletters = newsletters.map(item => 
+          item.id === id ? { ...item, isActive: !currentStatus } : item
+        )
+        setNewsletters(updatedNewsletters)
+      } else {
+        setError('Не удалось обновить статус подписки. Попробуйте позже.')
+      }
+    } catch (err) {
+      console.error('Ошибка при обновлении статуса подписки:', err)
+      setError('Произошла ошибка при обновлении статуса подписки')
+    } finally {
+      setProcessing(false)
+    }
+  }
+  
   if (isLoading) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
@@ -377,324 +449,394 @@ const Admin = () => {
   }
   
   return (
-    <div className="min-h-screen bg-bg-primary p-4 md:p-6">
-      <div className="glass-card shadow-neon border border-white/10 rounded-xl p-6">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gradient mb-4 md:mb-0">Панель администратора</h1>
-          
-          <div className="flex items-center space-x-4">
-            <Link 
-              to="/" 
-              className="px-4 py-2 rounded-lg bg-bg-secondary/50 text-text-secondary hover:bg-bg-secondary/70 hover:text-text-primary transition-colors"
-            >
-              На сайт
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 transition-colors"
-            >
-              Выйти
-            </button>
-          </div>
-        </div>
-        
-        {/* Табы для фильтрации форм */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 rounded-full ${
-              activeTab === 'all' 
-                ? 'bg-gradient-to-r from-accent-blue to-accent-green text-white' 
-                : 'bg-bg-secondary/50 text-text-secondary hover:bg-bg-secondary/70'
-            } transition-colors`}
+    <div className="container py-24 min-h-screen">
+      <div className="mb-8 flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Панель администратора</h1>
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={loadDataFromServer}
+            className="px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue border border-accent-blue/30 hover:bg-accent-blue/30 transition-colors"
+            disabled={processing || isLoading}
           >
-            Все заявки
+            {processing || isLoading ? (
+              <span className="flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-accent-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Обновление...
+              </span>
+            ) : "Обновить данные"}
           </button>
-          <button
-            onClick={() => setActiveTab('popup')}
-            className={`px-4 py-2 rounded-full ${
-              activeTab === 'popup' 
-                ? 'bg-gradient-to-r from-accent-blue to-accent-green text-white' 
-                : 'bg-bg-secondary/50 text-text-secondary hover:bg-bg-secondary/70'
-            } transition-colors`}
+          <button 
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-lg bg-red-600/20 text-red-400 border border-red-600/20 hover:bg-red-600/30 transition-colors"
           >
-            Всплывающая форма
-          </button>
-          <button
-            onClick={() => setActiveTab('contact')}
-            className={`px-4 py-2 rounded-full ${
-              activeTab === 'contact' 
-                ? 'bg-gradient-to-r from-accent-blue to-accent-green text-white' 
-                : 'bg-bg-secondary/50 text-text-secondary hover:bg-bg-secondary/70'
-            } transition-colors`}
-          >
-            Контактная форма
-          </button>
-          <button
-            onClick={() => setActiveTab('review')}
-            className={`px-4 py-2 rounded-full ${
-              activeTab === 'review' 
-                ? 'bg-gradient-to-r from-accent-blue to-accent-green text-white' 
-                : 'bg-bg-secondary/50 text-text-secondary hover:bg-bg-secondary/70'
-            } transition-colors`}
-          >
-            Отзывы из форм
-          </button>
-          <button
-            onClick={() => setActiveTab('reviews-db')}
-            className={`px-4 py-2 rounded-full ${
-              activeTab === 'reviews-db' 
-                ? 'bg-gradient-to-r from-accent-blue to-accent-green text-white' 
-                : 'bg-bg-secondary/50 text-text-secondary hover:bg-bg-secondary/70'
-            } transition-colors`}
-          >
-            Отзывы из базы
+            Выйти
           </button>
         </div>
+      </div>
+      
+      {error && (
+        <div className="mb-6 p-4 bg-red-600/20 border border-red-600/20 rounded-lg text-red-400">
+          {error}
+        </div>
+      )}
+      
+      <div className="glass-card rounded-xl p-6 mb-10">
+        <h2 className="text-xl font-bold mb-4">Управление данными</h2>
         
-        {/* Уведомление об ошибке */}
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6 text-red-400">
-            {error}
+        <div className="border-b border-white/10 mb-6">
+          <div className="flex flex-wrap gap-2">
             <button 
-              className="ml-2 text-red-300 hover:text-red-100"
-              onClick={() => setError('')}
+              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'all' ? 'bg-accent-blue/20 text-accent-blue' : 'hover:bg-bg-secondary'}`}
+              onClick={() => setActiveTab('all')}
             >
-              ✕
+              Все заявки
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'contact' ? 'bg-accent-blue/20 text-accent-blue' : 'hover:bg-bg-secondary'}`}
+              onClick={() => setActiveTab('contact')}
+            >
+              Обратная связь
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'service' ? 'bg-accent-blue/20 text-accent-blue' : 'hover:bg-bg-secondary'}`}
+              onClick={() => setActiveTab('service')}
+            >
+              Запись на сервис
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'review' ? 'bg-accent-blue/20 text-accent-blue' : 'hover:bg-bg-secondary'}`}
+              onClick={() => setActiveTab('review')}
+            >
+              Отзывы
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'newsletter' ? 'bg-accent-blue/20 text-accent-blue' : 'hover:bg-bg-secondary'}`}
+              onClick={() => setActiveTab('newsletter')}
+            >
+              Подписки на новости
             </button>
           </div>
-        )}
+        </div>
         
-        {/* Если выбраны отзывы из базы данных */}
-        {activeTab === 'reviews-db' && (
-          <div className="overflow-x-auto">
-            <h2 className="text-2xl font-bold text-white mb-4">Отзывы из базы данных</h2>
-            
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-bg-secondary/50">
-                  <th className="px-4 py-2 text-left">ID</th>
-                  <th className="px-4 py-2 text-left">Дата</th>
-                  <th className="px-4 py-2 text-left">Автор</th>
-                  <th className="px-4 py-2 text-left">Рейтинг</th>
-                  <th className="px-4 py-2 text-left">Авто</th>
-                  <th className="px-4 py-2 text-left">Услуга</th>
-                  <th className="px-4 py-2 text-left">Текст</th>
-                  <th className="px-4 py-2 text-left">Статус</th>
-                  <th className="px-4 py-2 text-left">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reviews.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-text-secondary">
-                      Отзывов не найдено
-                    </td>
-                  </tr>
-                ) : (
-                  reviews.map((review) => (
-                    <tr 
-                      key={review.id} 
-                      className="border-b border-white/5 hover:bg-bg-secondary/30 transition-colors"
-                    >
-                      <td className="px-4 py-3">
-                        {review.id}
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        {review.date}
-                      </td>
-                      <td className="px-4 py-3">
-                        {review.author}
-                      </td>
-                      <td className="px-4 py-3">
-                        {review.rating} / 5
-                      </td>
-                      <td className="px-4 py-3">
-                        {review.car || '—'}
-                      </td>
-                      <td className="px-4 py-3">
-                        {review.service || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-sm max-w-xs truncate">
-                        {review.text}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className={`px-3 py-1 rounded-full text-xs inline-block
-                          ${review.verified ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}
-                        `}>
-                          {review.verified ? 'Проверенный отзыв' : 'Непроверенный отзыв'}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex space-x-2">
-                          {!review.verified && (
-                            <button
-                              onClick={() => handleVerifyReview(review.id)}
-                              disabled={processing}
-                              className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-                              title="Верифицировать отзыв"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                              </svg>
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleOpenEditModal(review)}
-                            disabled={processing}
-                            className="p-1.5 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition-colors"
-                            title="Редактировать отзыв"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteReview(review.id)}
-                            disabled={processing}
-                            className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
-                            title="Удалить"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-blue"></div>
+            <p className="mt-2 text-text-secondary">Загрузка данных...</p>
           </div>
-        )}
-        
-        {/* Таблица заявок (для остальных вкладок) */}
-        {activeTab !== 'reviews-db' && (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-bg-secondary/50">
-                  <th className="px-4 py-2 text-left">Дата</th>
-                  <th className="px-4 py-2 text-left">Имя</th>
-                  <th className="px-4 py-2 text-left">Контакты</th>
-                  <th className="px-4 py-2 text-left">Тип заявки</th>
-                  <th className="px-4 py-2 text-left">Сообщение</th>
-                  <th className="px-4 py-2 text-left">Статус</th>
-                  <th className="px-4 py-2 text-left">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredForms.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-text-secondary">
-                      Заявок не найдено
-                    </td>
-                  </tr>
-                ) : (
-                  filteredForms.map((form) => (
-                    <tr 
-                      key={form.id} 
-                      className="border-b border-white/5 hover:bg-bg-secondary/30 transition-colors"
-                    >
-                      <td className="px-4 py-3 text-sm">
-                        {new Date(form.date).toLocaleString('ru-RU')}
-                      </td>
-                      <td className="px-4 py-3">
-                        {form.name}
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <div>Тел: {form.phone || '—'}</div>
-                        <div>Email: {form.email || '—'}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className={`px-3 py-1 rounded-full text-xs inline-block
-                          ${form.formType === 'contact' ? 'bg-blue-500/20 text-blue-400' : ''}
-                          ${form.formType === 'popup' ? 'bg-green-500/20 text-green-400' : ''}
-                          ${form.formType === 'review' ? 'bg-purple-500/20 text-purple-400' : ''}
-                        `}>
-                          {form.formType === 'contact' && 'Контактная форма'}
-                          {form.formType === 'popup' && 'Всплывающая форма'}
-                          {form.formType === 'review' && 'Отзыв'}
-                          {!form.formType && 'Неизвестно'}
-                        </div>
-                        {form.service && (
-                          <div className="text-xs text-text-secondary mt-1">
-                            Услуга: {form.service}
-                          </div>
-                        )}
-                        {form.carModel && (
-                          <div className="text-xs text-text-secondary">
-                            Авто: {form.carModel}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-sm max-w-xs truncate">
-                        {form.message}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className={`px-3 py-1 rounded-full text-xs inline-block
-                          ${form.isProcessed ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}
-                        `}>
-                          {form.isProcessed ? 'Обработана' : 'Новая'}
-                        </div>
-                        {form.isProcessed && form.processedAt && (
-                          <div className="text-xs text-text-secondary mt-1">
-                            {new Date(form.processedAt).toLocaleString('ru-RU')}
-                          </div>
-                        )}
-                        {form.formType === 'review' && (
-                          <div className={`px-3 py-1 rounded-full text-xs inline-block mt-2
-                            ${form.verified ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}
-                          `}>
-                            {form.verified ? 'Проверенный отзыв' : 'Непроверенный отзыв'}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex space-x-2">
-                          {!form.isProcessed && (
-                            <button
-                              onClick={() => handleMarkAsProcessed(form.id)}
-                              disabled={processing}
-                              className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
-                              title="Отметить как обработанную"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </button>
-                          )}
-                          {form.formType === 'review' && !form.verified && (
-                            <button
-                              onClick={() => handleVerifyReview(form.id)}
-                              disabled={processing}
-                              className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-                              title="Верифицировать отзыв"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                              </svg>
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteForm(form.id)}
-                            disabled={processing}
-                            className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
-                            title="Удалить"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
+        ) : (
+          <>
+            {activeTab === 'newsletter' ? (
+              // Таблица с подписчиками на новости
+              <div className="overflow-x-auto">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-white">Подписки на новости</h2>
+                </div>
+                <table className="min-w-full divide-y divide-white/10">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-text-secondary tracking-wider">Email</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-text-secondary tracking-wider">Имя</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-text-secondary tracking-wider">Дата подписки</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-text-secondary tracking-wider">Статус</th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-text-secondary tracking-wider">Действия</th>
                     </tr>
-                  ))
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {newsletters.length > 0 ? (
+                      newsletters.map((item) => (
+                        <tr key={item.id} className="hover:bg-bg-secondary/30 transition-colors">
+                          <td className="px-4 py-4 text-sm">{item.email}</td>
+                          <td className="px-4 py-4 text-sm">{item.name || '—'}</td>
+                          <td className="px-4 py-4 text-sm">
+                            {item.date ? new Date(item.date).toLocaleString('ru-RU') : '—'}
+                          </td>
+                          <td className="px-4 py-4 text-sm">
+                            <span 
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                item.isActive 
+                                  ? 'bg-green-500/20 text-green-400' 
+                                  : 'bg-red-500/20 text-red-400'
+                              }`}
+                            >
+                              {item.isActive ? 'Активна' : 'Неактивна'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-right space-x-2">
+                            <button 
+                              onClick={() => item.id !== undefined && handleToggleNewsletterStatus(item.id, !!item.isActive)}
+                              className={`px-2 py-1 text-xs rounded border ${
+                                item.isActive 
+                                  ? 'border-red-600/20 text-red-400 hover:bg-red-600/20' 
+                                  : 'border-green-600/20 text-green-400 hover:bg-green-600/20'
+                              } transition-colors`}
+                              disabled={processing}
+                            >
+                              {item.isActive ? 'Деактивировать' : 'Активировать'}
+                            </button>
+                            <button 
+                              onClick={() => item.id !== undefined && handleDeleteNewsletter(item.id)}
+                              className="px-2 py-1 text-xs rounded border border-red-600/20 text-red-400 hover:bg-red-600/20 transition-colors"
+                              disabled={processing}
+                            >
+                              Удалить
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-text-secondary">
+                          Нет подписок на новости
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              // Существующая таблица с заявками и формами
+              <>
+                {/* Если выбраны отзывы из базы данных */}
+                {activeTab === 'review' && (
+                  <div className="overflow-x-auto">
+                    <h2 className="text-2xl font-bold text-white mb-4">Отзывы из базы данных</h2>
+                    
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-bg-secondary/50">
+                          <th className="px-4 py-2 text-left">ID</th>
+                          <th className="px-4 py-2 text-left">Дата</th>
+                          <th className="px-4 py-2 text-left">Автор</th>
+                          <th className="px-4 py-2 text-left">Рейтинг</th>
+                          <th className="px-4 py-2 text-left">Авто</th>
+                          <th className="px-4 py-2 text-left">Услуга</th>
+                          <th className="px-4 py-2 text-left">Текст</th>
+                          <th className="px-4 py-2 text-left">Статус</th>
+                          <th className="px-4 py-2 text-left">Действия</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reviews.length === 0 ? (
+                          <tr>
+                            <td colSpan={9} className="px-4 py-8 text-center text-text-secondary">
+                              Отзывов не найдено
+                            </td>
+                          </tr>
+                        ) : (
+                          reviews.map((review) => (
+                            <tr 
+                              key={review.id} 
+                              className="border-b border-white/5 hover:bg-bg-secondary/30 transition-colors"
+                            >
+                              <td className="px-4 py-3">
+                                {review.id}
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                {review.date}
+                              </td>
+                              <td className="px-4 py-3">
+                                {review.author}
+                              </td>
+                              <td className="px-4 py-3">
+                                {review.rating} / 5
+                              </td>
+                              <td className="px-4 py-3">
+                                {review.car || '—'}
+                              </td>
+                              <td className="px-4 py-3">
+                                {review.service || '—'}
+                              </td>
+                              <td className="px-4 py-3 text-sm max-w-xs truncate">
+                                {review.text}
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className={`px-3 py-1 rounded-full text-xs inline-block
+                                  ${review.verified ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}
+                                `}>
+                                  {review.verified ? 'Проверенный отзыв' : 'Непроверенный отзыв'}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex space-x-2">
+                                  {!review.verified && (
+                                    <button
+                                      onClick={() => handleVerifyReview(review.id)}
+                                      disabled={processing}
+                                      className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+                                      title="Верифицировать отзыв"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                      </svg>
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleOpenEditModal(review)}
+                                    disabled={processing}
+                                    className="p-1.5 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition-colors"
+                                    title="Редактировать отзыв"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteReview(review.id)}
+                                    disabled={processing}
+                                    className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                                    title="Удалить"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
-              </tbody>
-            </table>
-          </div>
+                
+                {/* Таблица заявок (для остальных вкладок) */}
+                {activeTab !== 'review' && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-bg-secondary/50">
+                          <th className="px-4 py-2 text-left">Дата</th>
+                          <th className="px-4 py-2 text-left">Имя</th>
+                          <th className="px-4 py-2 text-left">Контакты</th>
+                          <th className="px-4 py-2 text-left">Тип заявки</th>
+                          <th className="px-4 py-2 text-left">Сообщение</th>
+                          <th className="px-4 py-2 text-left">Статус</th>
+                          <th className="px-4 py-2 text-left">Действия</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredForms.length === 0 ? (
+                          <tr>
+                            <td colSpan={7} className="px-4 py-8 text-center text-text-secondary">
+                              Заявок не найдено
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredForms.map((form) => (
+                            <tr 
+                              key={form.id} 
+                              className="border-b border-white/5 hover:bg-bg-secondary/30 transition-colors"
+                            >
+                              <td className="px-4 py-3 text-sm">
+                                {form.date ? new Date(form.date).toLocaleString('ru-RU') : '—'}
+                              </td>
+                              <td className="px-4 py-3">
+                                {form.name}
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                <div>Тел: {form.phone || '—'}</div>
+                                <div>Email: {form.email || '—'}</div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className={`px-3 py-1 rounded-full text-xs inline-block
+                                  ${form.formType === 'contact' ? 'bg-blue-500/20 text-blue-400' : ''}
+                                  ${form.formType === 'service' ? 'bg-green-500/20 text-green-400' : ''}
+                                  ${form.formType === 'review' ? 'bg-purple-500/20 text-purple-400' : ''}
+                                  ${form.formType === 'newsletter' ? 'bg-orange-500/20 text-orange-400' : ''}
+                                  ${form.formType === 'popup' ? 'bg-yellow-500/20 text-yellow-400' : ''}
+                                `}>
+                                  {form.formType === 'contact' && 'Контактная форма'}
+                                  {form.formType === 'service' && 'Запись на сервис'}
+                                  {form.formType === 'review' && 'Отзыв'}
+                                  {form.formType === 'newsletter' && 'Подписка на новости'}
+                                  {form.formType === 'popup' && 'Запрос обратного звонка'}
+                                  {!form.formType && 'Неизвестно'}
+                                </div>
+                                {form.service && (
+                                  <div className="text-xs text-text-secondary mt-1">
+                                    Услуга: {form.service}
+                                  </div>
+                                )}
+                                {form.carModel && (
+                                  <div className="text-xs text-text-secondary">
+                                    Авто: {form.carModel}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-sm max-w-xs truncate">
+                                {form.message}
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className={`px-3 py-1 rounded-full text-xs inline-block
+                                  ${form.isProcessed ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}
+                                `}>
+                                  {form.isProcessed ? 'Обработана' : 'Новая'}
+                                </div>
+                                {form.isProcessed && form.processedAt && (
+                                  <div className="text-xs text-text-secondary mt-1">
+                                    {new Date(form.processedAt).toLocaleString('ru-RU')}
+                                  </div>
+                                )}
+                                {form.formType === 'review' && (
+                                  <div className={`px-3 py-1 rounded-full text-xs inline-block mt-2
+                                    ${form.verified ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}
+                                  `}>
+                                    {form.verified ? 'Проверенный отзыв' : 'Непроверенный отзыв'}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex space-x-2">
+                                  {!form.isProcessed && (
+                                    <button
+                                      onClick={() => form.id !== undefined && handleMarkAsProcessed(form.id)}
+                                      disabled={processing}
+                                      className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+                                      title="Отметить как обработанную"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    </button>
+                                  )}
+                                  {form.formType === 'review' && !form.verified && (
+                                    <button
+                                      onClick={() => form.id !== undefined && handleVerifyReview(form.id)}
+                                      disabled={processing}
+                                      className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+                                      title="Верифицировать отзыв"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                      </svg>
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => form.id !== undefined && handleDeleteForm(form.id)}
+                                    disabled={processing}
+                                    className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                                    title="Удалить"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
+          </>
         )}
       </div>
       

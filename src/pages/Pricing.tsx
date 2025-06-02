@@ -248,7 +248,19 @@ const Pricing = () => {
                       </td>
                       <td className="py-4 px-6 text-center">
                         <Link 
-                          to="/contacts#form" 
+                          to={
+                            activeCategory === 'brakes' 
+                              ? '/contacts?service=brake-service#form'
+                              : activeCategory === 'maintenance'
+                                ? '/contacts?service=oil-filter#form'
+                                : activeCategory === 'electrical'
+                                  ? '/contacts?service=battery-service#form'
+                                  : activeCategory === 'bodywork'
+                                    ? '/contacts?service=body-repair#form'
+                                    : activeCategory === 'engine'
+                                      ? '/contacts?service=transmission#form'
+                                      : `/contacts?service=${activeCategory}#form`
+                          } 
                           className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-opacity-30 bg-bg-secondary backdrop-blur-glass border border-accent-blue/30 text-text-primary text-sm font-semibold transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon"
                         >
                           Заказать

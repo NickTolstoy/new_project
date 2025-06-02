@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>База данных форм</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .forms-container {
+            margin-top: 20px;
+        }
+        .form-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .form-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .form-message {
+            grid-column: span 2;
+        }
+        .label {
+            font-weight: bold;
+            color: #666;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #3a7bc8;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #4a90e2;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Инспектор базы данных форм</h1>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="contact">Контактные формы</div>
+            <div class="tab" data-tab="popup">Формы поп-ап</div>
+            <div class="tab" data-tab="review">Отзывы</div>
+        </div>
+        
+        <div id="contact-forms" class="forms-container">
+            <h2>Контактные формы</h2>
+            <div id="contact-forms-content"></div>
+        </div>
+        
+        <div id="popup-forms" class="forms-container hidden">
+            <h2>Формы поп-ап</h2>
+            <div id="popup-forms-content"></div>
+        </div>
+        
+        <div id="review-forms" class="forms-container hidden">
+            <h2>Отзывы</h2>
+            <div id="review-forms-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загрузка форм из localStorage
+            loadForms();
+            
+            // Обработчики переключения вкладок
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Деактивация всех вкладок
+                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.forms-container').forEach(c => c.classList.add('hidden'));
+                    
+                    // Активация выбранной вкладки
+                    this.classList.add('active');
+                    document.getElementById(`${tabName}-forms`).classList.remove('hidden');
+                });
+            });
+        });
+
+        function loadForms() {
+            // Загрузка контактных форм
+            loadFormsByType('contactForms', 'contact-forms-content');
+            
+            // Загрузка форм поп-ап
+            loadFormsByType('popupForms', 'popup-forms-content');
+            
+            // Загрузка отзывов
+            loadFormsByType('reviewForms', 'review-forms-content');
+        }
+        
+        function loadFormsByType(storageKey, containerId) {
+            const container = document.getElementById(containerId);
+            const formsData = localStorage.getItem(storageKey);
+            
+            if (formsData) {
+                try {
+                    const forms = JSON.parse(formsData);
+                    
+                    if (forms.length > 0) {
+                        let html = '';
+                        forms.forEach(form => {
+                            html += createFormHtml(form);
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<div class="empty-message">Нет сохраненных форм</div>';
+                    }
+                } catch (e) {
+                    container.innerHTML = `<div class="empty-message">Ошибка при загрузке форм: ${e.message}</div>`;
+                }
+            } else {
+                container.innerHTML = '<div class="empty-message">Нет сохраненных форм</div>';
+            }
+        }
+        
+        function createFormHtml(form) {
+            return `
+                <div class="form-item">
+                    <div class="form-header">
+                        <div>${form.name || 'Без имени'}</div>
+                        <div>${form.date || new Date().toLocaleString('ru')}</div>
+                    </div>
+                    <div class="form-content">
+                        <div><span class="label">Телефон:</span> ${form.phone || 'Не указан'}</div>
+                        <div><span class="label">Email:</span> ${form.email || 'Не указан'}</div>
+                        <div><span class="label">Модель:</span> ${form.carModel || 'Не указана'}</div>
+                        <div><span class="label">Услуга:</span> ${form.service || 'Не указана'}</div>
+                        <div class="form-message"><span class="label">Сообщение:</span> ${form.message || 'Не указано'}</div>
+                        ${form.rating ? `<div><span class="label">Оценка:</span> ${form.rating}/5</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -263,12 +263,20 @@ const Services = () => {
                     </ul>
                   </div>
                   
-                  <Link 
-                    to={`/services/${service.slug}`} 
-                    className="px-6 py-3 rounded-full bg-opacity-30 bg-bg-secondary backdrop-blur-glass border border-accent-blue/30 text-text-primary font-semibold transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon w-full block text-center"
-                  >
-                    Подробнее
-                  </Link>
+                  <div className="flex gap-3">
+                    <Link 
+                      to={`/services/${service.slug}`} 
+                      className="px-6 py-3 rounded-full bg-opacity-30 bg-bg-secondary backdrop-blur-glass border border-accent-blue/30 text-text-primary font-semibold transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon flex-1 text-center"
+                    >
+                      Подробнее
+                    </Link>
+                    <Link 
+                      to={`/contacts?service=${service.slug}#form`}
+                      className="px-6 py-3 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold transition-all duration-300 hover:shadow-neon hover:scale-[1.03] flex-1 text-center"
+                    >
+                      Записаться
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             ))}

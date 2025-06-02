@@ -1,7 +1,25 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, createContext, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { InputMask, ContactFormData } from './shared/FormComponents'
-import { submitContactForm } from '../utils/contactFormService'
+import { InputMask } from './shared/FormComponents.tsx'
+import { ContactFormData } from './shared/FormComponents'
+import { submitContactForm } from '../utils/contactFormService.ts'
+
+// Создаем контекст для управления видимостью формы
+type PopupFormContextType = {
+  showPopupForm: () => void;
+  hidePopupForm: () => void;
+};
+
+const PopupFormContext = createContext<PopupFormContextType | undefined>(undefined);
+
+// Хук для использования контекста в других компонентах
+export const usePopupForm = () => {
+  const context = useContext(PopupFormContext);
+  if (!context) {
+    throw new Error('usePopupForm должен использоваться внутри PopupFormProvider');
+  }
+  return context;
+};
 
 // Компонент с анимированными частицами
 const ParticlesBackground = () => {
@@ -148,8 +166,32 @@ const ParticlesBackground = () => {
   );
 }
 
-const PopupForm = () => {
-  const [isVisible, setIsVisible] = useState(false)
+// Провайдер контекста для PopupForm
+export const PopupFormProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  const showPopupForm = () => {
+    setIsVisible(true);
+  };
+  
+  const hidePopupForm = () => {
+    setIsVisible(false);
+  };
+  
+  return (
+    <PopupFormContext.Provider value={{ showPopupForm, hidePopupForm }}>
+      {children}
+      <PopupForm isVisible={isVisible} setIsVisible={setIsVisible} />
+    </PopupFormContext.Provider>
+  );
+};
+
+interface PopupFormProps {
+  isVisible: boolean;
+  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const PopupForm = ({ isVisible, setIsVisible }: PopupFormProps) => {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('+7')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -161,7 +203,7 @@ const PopupForm = () => {
   useEffect(() => {
     const popupFormShown = localStorage.getItem('popupFormShown')
     
-    if (popupFormShown !== 'true') {
+    if (popupFormShown !== 'true' && !isVisible) {
       // Показать форму через 10 секунд после загрузки страницы
       const timer = setTimeout(() => {
         setIsVisible(true)
@@ -169,7 +211,25 @@ const PopupForm = () => {
       
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [isVisible, setIsVisible])
+  
+  // Сбрасываем состояние формы при её закрытии
+  useEffect(() => {
+    if (!isVisible) {
+      // Даем время на анимацию закрытия, затем сбрасываем состояние
+      const timer = setTimeout(() => {
+        if (!isVisible) {
+          setName('');
+          setPhone('+7');
+          setError('');
+          setIsSubmitted(false);
+          setIsSavedLocally(false);
+        }
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible]);
   
   // Закрытие формы
   const handleClose = () => {
@@ -397,4 +457,4 @@ const PopupForm = () => {
   )
 }
 
-export default PopupForm 
+export default PopupFormProvider 

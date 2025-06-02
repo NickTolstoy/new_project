@@ -26,7 +26,7 @@ const blogData: BlogPost[] = [
     author: 'Антон Гришин',
     category: 'Обслуживание',
     tags: ['батарея', 'советы', 'эксплуатация'],
-    image: '/images/blog/battery-life.jpg'
+    image: '/images/blog/battery-life.webp'
   },
   {
     id: '2',
@@ -37,7 +37,7 @@ const blogData: BlogPost[] = [
     author: 'Мария Климова',
     category: 'Эксплуатация',
     tags: ['зима', 'советы', 'зарядка'],
-    image: '/images/blog/winter-ev.jpg'
+    image: '/images/blog/winter-driving.webp'
   },
   {
     id: '3',
@@ -48,7 +48,7 @@ const blogData: BlogPost[] = [
     author: 'Павел Строгов',
     category: 'Зарядка',
     tags: ['Tesla', 'зарядка', 'сравнение'],
-    image: '/images/blog/tesla-charging.jpg'
+    image: '/images/blog/tesla-charging.webp'
   },
   {
     id: '4',
@@ -59,7 +59,7 @@ const blogData: BlogPost[] = [
     author: 'Антон Гришин',
     category: 'Образование',
     tags: ['мифы', 'факты', 'новичкам'],
-    image: '/images/blog/ev-myths.jpg'
+    image: '/images/blog/myths.webp'
   },
   {
     id: '5',
@@ -70,7 +70,7 @@ const blogData: BlogPost[] = [
     author: 'Мария Климова',
     category: 'Экология',
     tags: ['батарея', 'утилизация', 'экология'],
-    image: '/images/blog/battery-recycling.jpg'
+    image: '/images/blog/winter-driving.webp'
   },
   {
     id: '6',
@@ -81,7 +81,7 @@ const blogData: BlogPost[] = [
     author: 'Павел Строгов',
     category: 'Технологии',
     tags: ['инновации', 'технологии', '2023'],
-    image: '/images/blog/new-technologies.jpg'
+    image: '/images/blog/tesla-charging.webp'
   }
 ];
 

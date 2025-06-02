@@ -230,7 +230,7 @@ const PriceList: React.FC<PriceListProps> = ({ initialCategory = 'all' }) => {
                   {priceItem.price}
                 </span>
                 <Link 
-                  to="/contacts#form" 
+                  to={`/contacts?service=${priceItem.category}#form`}
                   className="px-4 py-2 rounded-full text-sm bg-opacity-30 bg-bg-secondary backdrop-blur-glass border border-accent-blue/30 text-text-primary font-semibold transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon whitespace-nowrap"
                 >
                   Заказать

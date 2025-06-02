@@ -4,6 +4,7 @@ import { dirname, join } from 'path';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import apiRoutes from './src/server/api.js';
+import './src/server/db-init-newsletter.js'; // Инициализация таблицы подписок
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

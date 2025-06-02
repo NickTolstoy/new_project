@@ -157,12 +157,12 @@ function saveReviewLocally(reviewData: ReviewData): void {
 }
 
 /**
- * Верификация отзыва администратором
- * @param reviewId ID отзыва
+ * Верификация отзыва
+ * @param id ID отзыва
  */
-export async function verifyReview(reviewId: number | string): Promise<boolean> {
+export const verifyReview = async (id: string | number): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}/verify`, {
+    const response = await fetch(`${API_BASE_URL}/admin/reviews/${id}/verify`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -170,28 +170,21 @@ export async function verifyReview(reviewId: number | string): Promise<boolean> 
     });
     
     const data = await response.json();
-    
-    if (data.success) {
-      console.log('Отзыв успешно верифицирован:', reviewId);
-      return true;
-    } else {
-      console.error('Ошибка при верификации отзыва:', data.message);
-      return false;
-    }
+    return data.success || false;
   } catch (error) {
-    console.error('Произошла ошибка при верификации отзыва:', error);
+    console.error('Ошибка при верификации отзыва:', error);
     return false;
   }
-}
+};
 
 /**
- * Обновление отзыва администратором
- * @param reviewId ID отзыва
- * @param updateData Данные для обновления (carModel, service)
+ * Обновление данных отзыва
+ * @param id ID отзыва
+ * @param updateData Данные для обновления
  */
-export async function updateReview(reviewId: number | string, updateData: { carModel?: string, service?: string }): Promise<boolean> {
+export const updateReview = async (id: string | number, updateData: { carModel?: string, service?: string }): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/reviews/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -200,56 +193,27 @@ export async function updateReview(reviewId: number | string, updateData: { carM
     });
     
     const data = await response.json();
-    
-    if (data.success) {
-      console.log('Отзыв успешно обновлен:', reviewId);
-      return true;
-    } else {
-      console.error('Ошибка при обновлении отзыва:', data.message);
-      return false;
-    }
+    return data.success || false;
   } catch (error) {
-    console.error('Произошла ошибка при обновлении отзыва:', error);
+    console.error('Ошибка при обновлении отзыва:', error);
     return false;
   }
-}
+};
 
 /**
- * Удаление отзыва администратором 
- * @param reviewId ID отзыва
+ * Удаление отзыва
+ * @param id ID отзыва
  */
-export async function deleteReview(reviewId: number | string): Promise<boolean> {
+export const deleteReview = async (id: string | number): Promise<boolean> => {
   try {
-    console.log(`[DELETE REVIEW] Отправка запроса на удаление отзыва с ID ${reviewId}...`);
-    const url = `${API_BASE_URL}/admin/reviews/${reviewId}`;
-    console.log(`[DELETE REVIEW] URL запроса: ${url}`);
-    
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const response = await fetch(`${API_BASE_URL}/admin/reviews/${id}`, {
+      method: 'DELETE'
     });
     
-    console.log(`[DELETE REVIEW] Получен ответ со статусом: ${response.status}`);
-    
-    if (!response.ok) {
-      console.error(`[DELETE REVIEW] Ошибка HTTP: ${response.status} ${response.statusText}`);
-      return false;
-    }
-    
     const data = await response.json();
-    console.log(`[DELETE REVIEW] Ответ API:`, data);
-    
-    if (data.success) {
-      console.log(`[DELETE REVIEW] Отзыв успешно удален: ${reviewId}`);
-      return true;
-    } else {
-      console.error(`[DELETE REVIEW] Ошибка при удалении отзыва: ${data.message}`);
-      return false;
-    }
+    return data.success || false;
   } catch (error) {
-    console.error(`[DELETE REVIEW] Произошла ошибка при удалении отзыва:`, error);
+    console.error('Ошибка при удалении отзыва:', error);
     return false;
   }
-} 
+}; 

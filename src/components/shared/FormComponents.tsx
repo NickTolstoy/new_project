@@ -7,15 +7,17 @@ export interface ContactFormData {
   phone: string;
   email: string;
   carModel: string;
-  service: string; // Может быть 'contact', 'popup' или название услуги для отзывов
+  service: string; // Может быть 'contact', 'service' или название услуги для отзывов
   message: string;
   date: string;
   rating?: number; // Опциональное поле для отзывов
-  formType?: 'contact' | 'popup' | 'review'; // Тип формы для лучшей идентификации
+  formType?: 'contact' | 'service' | 'review' | 'newsletter' | 'popup'; // Тип формы для лучшей идентификации
   isProcessed?: boolean; // Статус обработки формы
   processedAt?: string; // Дата обработки
   processedBy?: string; // Кто обработал форму
   verified?: boolean; // Статус верификации отзыва
+  isActive?: boolean; // Для подписок - активна ли подписка
+  unsubscribeToken?: string; // Токен для отписки от рассылки
 }
 
 // Компонент маски для телефона

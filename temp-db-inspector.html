@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DB Extractor</title>
+</head>
+<body>
+    <h1>Извлечение данных из базы...</h1>
+    <pre id="output"></pre>
+    
+    <script>
+        // Функция для форматирования данных формы в текст
+        function formatForm(form, index) {
+            let result = `Форма #${index + 1}\n`;
+            result += `Имя: ${form.name || 'Не указано'}\n`;
+            result += `Телефон: ${form.phone || 'Не указан'}\n`;
+            result += `Email: ${form.email || 'Не указан'}\n`;
+            result += `Модель автомобиля: ${form.carModel || 'Не указана'}\n`;
+            result += `Услуга: ${form.service || 'Не указана'}\n`;
+            result += `Сообщение: ${form.message || 'Не указано'}\n`;
+            if (form.rating) {
+                result += `Оценка: ${form.rating}/5\n`;
+            }
+            result += `Дата: ${form.date || 'Не указана'}\n`;
+            result += `------------------------\n`;
+            return result;
+        }
+        
+        // Функция для извлечения и форматирования данных из localStorage
+        function extractData() {
+            let output = '';
+            
+            // Контактные формы
+            const contactForms = localStorage.getItem('contactForms');
+            output += '=== КОНТАКТНЫЕ ФОРМЫ ===\n';
+            if (contactForms) {
+                try {
+                    const forms = JSON.parse(contactForms);
+                    if (forms.length > 0) {
+                        forms.forEach((form, index) => {
+                            output += formatForm(form, index);
+                        });
+                    } else {
+                        output += 'Нет сохраненных контактных форм\n';
+                    }
+                } catch (e) {
+                    output += `Ошибка при загрузке контактных форм: ${e.message}\n`;
+                }
+            } else {
+                output += 'Нет сохраненных контактных форм\n';
+            }
+            output += '\n';
+            
+            // Формы поп-ап
+            const popupForms = localStorage.getItem('popupForms');
+            output += '=== ФОРМЫ ПОП-АП ===\n';
+            if (popupForms) {
+                try {
+                    const forms = JSON.parse(popupForms);
+                    if (forms.length > 0) {
+                        forms.forEach((form, index) => {
+                            output += formatForm(form, index);
+                        });
+                    } else {
+                        output += 'Нет сохраненных форм поп-ап\n';
+                    }
+                } catch (e) {
+                    output += `Ошибка при загрузке форм поп-ап: ${e.message}\n`;
+                }
+            } else {
+                output += 'Нет сохраненных форм поп-ап\n';
+            }
+            output += '\n';
+            
+            // Отзывы
+            const reviewForms = localStorage.getItem('reviewForms');
+            output += '=== ОТЗЫВЫ ===\n';
+            if (reviewForms) {
+                try {
+                    const forms = JSON.parse(reviewForms);
+                    if (forms.length > 0) {
+                        forms.forEach((form, index) => {
+                            output += formatForm(form, index);
+                        });
+                    } else {
+                        output += 'Нет сохраненных отзывов\n';
+                    }
+                } catch (e) {
+                    output += `Ошибка при загрузке отзывов: ${e.message}\n`;
+                }
+            } else {
+                output += 'Нет сохраненных отзывов\n';
+            }
+            
+            // Также выводим в элемент на странице
+            document.getElementById('output').textContent = output;
+            
+            // Сигнализируем о завершении работы
+            document.title = 'DONE: ' + output.length;
+            
+            // Для возможности копирования данных
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'Скопировать данные';
+            copyButton.style.padding = '10px';
+            copyButton.style.margin = '10px';
+            copyButton.style.backgroundColor = '#4CAF50';
+            copyButton.style.color = 'white';
+            copyButton.style.border = 'none';
+            copyButton.style.borderRadius = '5px';
+            copyButton.style.cursor = 'pointer';
+            
+            copyButton.onclick = function() {
+                navigator.clipboard.writeText(output)
+                    .then(() => {
+                        this.textContent = 'Скопировано!';
+                        setTimeout(() => {
+                            this.textContent = 'Скопировать данные';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Ошибка при копировании: ', err);
+                        alert('Не удалось скопировать текст. Пожалуйста, выделите его вручную и скопируйте.');
+                    });
+            };
+            
+            document.body.insertBefore(copyButton, document.getElementById('output'));
+        }
+        
+        // Запускаем извлечение данных
+        extractData();
+    </script>
+</body>
+</html>

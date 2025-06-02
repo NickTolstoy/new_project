@@ -105,27 +105,40 @@ const About = () => {
   return (
     <>
       {/* Шапка страницы */}
-      <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-bg-secondary">
+      <section className="pt-24 pb-16 md:pt-32 md:pb-20 bg-gradient-to-b from-bg-secondary to-bg-secondary/30">
         <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-accent-blue to-accent-green">
               О нашей компании
             </h1>
-            <p className="text-text-secondary text-lg md:text-xl">
+            <p className="text-text-secondary text-lg md:text-xl leading-relaxed">
               Профессиональный сервис обслуживания электромобилей 
               с опытом и современным оборудованием.
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
       
       {/* История компании */}
       <section className="py-16">
         <div className="container">
-          <div className="glass-card p-8 md:p-12 rounded-xl">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="glass-card p-8 md:p-12 rounded-xl shadow-lg hover:shadow-xl hover:shadow-accent-blue/10 transition-all duration-300"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               <div>
-                <h2 className="text-3xl font-bold mb-6">Наша история</h2>
+                <h2 className="text-3xl font-bold mb-6 flex items-center">
+                  <span className="bg-gradient-to-r from-accent-blue to-accent-green h-8 w-1 rounded mr-3"></span>
+                  Наша история
+                </h2>
                 <div className="space-y-4">
                   <p className="text-text-secondary">
                     Компания "АвтосервисЛюбань" была основана в 2018 году группой энтузиастов электромобилей, которые увидели растущую потребность в специализированных сервисах для владельцев электротранспорта.
@@ -146,27 +159,34 @@ const About = () => {
                 <img 
                   src="/images/company-history.jpg" 
                   alt="История компании АвтосервисЛюбань" 
-                  className="rounded-xl"
+                  className="rounded-xl shadow-lg hover:shadow-accent-blue/20 hover:shadow-xl transition-all duration-300"
                 />
-                <div className="absolute top-4 right-4 bg-accent-blue/80 backdrop-blur-sm text-white text-lg font-bold px-4 py-2 rounded-lg">
+                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-accent-blue to-accent-green text-white text-lg font-bold px-6 py-3 rounded-lg shadow-lg transform rotate-3 hover:rotate-0 transition-all duration-300">
                   С 2018 года
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
       
       {/* Наши преимущества */}
-      <section className="py-16 bg-bg-secondary">
+      <section className="py-16 bg-gradient-to-b from-bg-secondary/70 to-transparent">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Почему выбирают нас</h2>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-accent-blue to-accent-green">
+              Почему выбирают нас
+            </h2>
             <p className="text-text-secondary max-w-3xl mx-auto">
               Наш сервис отличает высокий профессионализм, внимание к деталям 
               и постоянное стремление к совершенству.
             </p>
-          </div>
+          </motion.div>
           
           <motion.div 
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -179,10 +199,11 @@ const About = () => {
               <motion.div
                 key={advantage.id}
                 variants={item}
-                className="glass-card p-6 rounded-xl h-full"
+                className="glass-card p-6 rounded-xl h-full shadow-lg hover:shadow-xl hover:shadow-accent-blue/10 transition-all duration-300"
+                whileHover={{ y: -5 }}
               >
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 bg-bg-secondary/50 rounded-full w-16 h-16 flex items-center justify-center mr-4">
+                  <div className="flex-shrink-0 bg-gradient-to-br from-accent-blue/20 to-accent-green/20 rounded-full w-16 h-16 flex items-center justify-center mr-4">
                     {advantage.icon}
                   </div>
                   <div>
@@ -199,13 +220,20 @@ const About = () => {
       {/* Наша команда */}
       <section className="py-16">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Наша команда</h2>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-accent-blue to-accent-green">
+              Наша команда
+            </h2>
             <p className="text-text-secondary max-w-3xl mx-auto">
               Профессионалы своего дела, которые обеспечивают качественное обслуживание 
               и гарантируют безопасность вашего электромобиля.
             </p>
-          </div>
+          </motion.div>
           
           <motion.div 
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
@@ -218,35 +246,113 @@ const About = () => {
               <motion.div
                 key={member.id}
                 variants={item}
-                className="glass-card rounded-xl overflow-hidden text-center hover:shadow-neon transition-all duration-300"
-                whileHover={{ y: -5 }}
+                className="glass-card rounded-xl overflow-hidden text-center shadow-lg hover:shadow-neon transition-all duration-300"
+                whileHover={{ y: -8, scale: 1.02 }}
               >
                 <div className="h-64 overflow-hidden">
                   <img 
                     src={member.photo} 
                     alt={member.name} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-all duration-500 hover:scale-110"
                   />
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold">{member.name}</h3>
-                  <p className="text-accent-blue mb-2">{member.position}</p>
-                  <p className="text-text-secondary text-sm bg-bg-secondary/50 inline-block px-3 py-1 rounded-full">
+                <div className="p-6 relative">
+                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-accent-blue to-accent-green text-white text-sm font-bold px-4 py-1 rounded-full">
                     {member.experience}
-                  </p>
+                  </div>
+                  <h3 className="text-xl font-bold mt-2">{member.name}</h3>
+                  <p className="text-accent-blue mb-2">{member.position}</p>
                 </div>
               </motion.div>
             ))}
           </motion.div>
           
-          <div className="text-center mt-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="text-center mt-14"
+          >
             <Link 
               to="/contacts" 
-              className="px-6 py-3 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold transition-all duration-300 hover:shadow-neon hover:scale-105 inline-block"
+              className="px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold transition-all duration-300 hover:shadow-neon hover:scale-105 inline-block"
             >
               Связаться с нами
             </Link>
-          </div>
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* Сертификаты и достижения */}
+      <section className="py-16 bg-gradient-to-b from-bg-secondary/30 to-transparent">
+        <div className="container">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-accent-blue to-accent-green">
+              Сертификаты и достижения
+            </h2>
+            <p className="text-text-secondary max-w-3xl mx-auto">
+              Наша квалификация подтверждена официальными сертификатами от производителей электромобилей 
+              и профессиональных организаций.
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="glass-card p-8 rounded-xl shadow-lg"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((item) => (
+                <motion.div 
+                  key={item}
+                  whileHover={{ y: -5, scale: 1.05 }}
+                  className="bg-bg-secondary/50 p-6 rounded-lg text-center shadow-md hover:shadow-accent-blue/20 transition-all duration-300"
+                >
+                  <div className="bg-gradient-to-br from-accent-blue/20 to-accent-green/20 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-10 h-10 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-lg mb-1">Сертификат #{item}</h3>
+                  <p className="text-text-secondary text-sm">
+                    Официальный сертификат от производителя электромобилей
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* Призыв к действию */}
+      <section className="py-16">
+        <div className="container">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="glass-card p-8 md:p-12 rounded-xl shadow-xl bg-gradient-to-r from-accent-blue/10 to-accent-green/10"
+          >
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Готовы доверить нам свой электромобиль?</h2>
+              <p className="text-text-secondary max-w-3xl mx-auto mb-8">
+                Запишитесь на консультацию или диагностику, и наши специалисты помогут поддерживать 
+                ваш электромобиль в отличном состоянии.
+              </p>
+              <Link 
+                to="/contacts" 
+                className="px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold transition-all duration-300 hover:shadow-neon hover:scale-105 inline-block"
+              >
+                Записаться на обслуживание
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
       
@@ -286,35 +392,6 @@ const About = () => {
                 className="px-6 py-3 rounded-full bg-opacity-30 bg-bg-secondary backdrop-blur-glass border border-accent-blue/30 text-text-primary font-semibold transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon inline-block"
               >
                 Посмотреть отзывы клиентов
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Призыв к действию */}
-      <section className="py-16">
-        <div className="container">
-          <div className="glass-card p-8 md:p-12 rounded-xl text-center">
-            <h2 className="text-3xl font-bold mb-6">
-              Готовы доверить свой электромобиль профессионалам?
-            </h2>
-            <p className="text-text-secondary text-lg mb-8 max-w-3xl mx-auto">
-              Запишитесь на консультацию или диагностику уже сегодня и убедитесь в качестве нашего сервиса.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/contacts" 
-                className="px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold transition-all duration-300 hover:shadow-neon hover:scale-105 text-center"
-              >
-                Записаться на сервис
-              </Link>
-              <Link 
-                to="/services" 
-                className="px-8 py-4 rounded-full bg-opacity-30 bg-bg-secondary backdrop-blur-glass border border-accent-blue/30 text-text-primary font-semibold transition-all duration-300 hover:border-accent-blue/80 hover:shadow-neon text-center"
-              >
-                Узнать о услугах
               </Link>
             </div>
           </div>

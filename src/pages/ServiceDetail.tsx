@@ -356,6 +356,47 @@ const ServiceDetail = () => {
       {/* Шапка страницы */}
       <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-bg-secondary">
         <div className="container">
+          {/* Хлебные крошки */}
+          <div className="mb-6">
+            <div className="flex items-center text-sm">
+              <Link to="/" className="text-white/70 hover:text-white transition-colors">
+                Главная
+              </Link>
+              <svg 
+                className="w-3 h-3 mx-2 text-white/40" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2" 
+                  d="M9 5l7 7-7 7" 
+                />
+              </svg>
+              <Link to="/services" className="text-white/70 hover:text-white transition-colors">
+                Услуги
+              </Link>
+              <svg 
+                className="w-3 h-3 mx-2 text-white/40" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="2" 
+                  d="M9 5l7 7-7 7" 
+                />
+              </svg>
+              <span className="text-accent-blue/90 font-medium">
+                {service.title}
+              </span>
+            </div>
+          </div>
+          
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div className="max-w-2xl">
               <Link 
@@ -391,7 +432,7 @@ const ServiceDetail = () => {
                 </div>
                 
                 <Link 
-                  to="/contacts#form" 
+                  to={`/contacts?service=${slug}#form`}
                   className="w-full px-6 py-3 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold transition-all duration-300 hover:shadow-neon hover:scale-105 inline-block mt-4"
                 >
                   Записаться
@@ -545,7 +586,7 @@ const ServiceDetail = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
-                to="/contacts#form" 
+                to={`/contacts?service=${slug}#form`}
                 className="px-8 py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-green text-text-primary font-bold transition-all duration-300 hover:shadow-neon hover:scale-105 text-center"
               >
                 Записаться сейчас

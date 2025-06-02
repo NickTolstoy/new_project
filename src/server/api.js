@@ -9,6 +9,13 @@ import {
   updateFormStatus, 
   deleteContactForm 
 } from './contactRepository.js';
+import {
+  saveNewsletterSubscription,
+  unsubscribeByToken,
+  getAllNewsletterSubscriptions,
+  updateSubscriptionStatus,
+  deleteSubscription
+} from './newsletterRepository.js';
 
 const router = express.Router();
 
@@ -641,6 +648,218 @@ router.post('/admin/login', (req, res) => {
     return res.status(401).json({
       success: false,
       message: 'Неверное имя пользователя или пароль'
+    });
+  }
+});
+
+// Подписка на новости
+router.post('/newsletter/subscribe', async (req, res) => {
+  try {
+    console.log('[API] Получены данные подписки на новости:', req.body);
+    
+    const newsletterData = req.body;
+    
+    // Проверка обязательных полей
+    if (!newsletterData.email) {
+      console.log('[API] Ошибка валидации: отсутствует email');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Необходимо указать email для подписки' 
+      });
+    }
+    
+    // Сохранение подписки
+    const result = await saveNewsletterSubscription(newsletterData);
+    
+    if (result.success) {
+      // TODO: Отправка подтверждения на email (в будущем)
+      
+      return res.status(200).json({
+        success: true,
+        message: result.message,
+        formId: result.formId
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: result.message
+      });
+    }
+  } catch (error) {
+    console.error('[API] Ошибка при обработке подписки:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера при обработке подписки'
+    });
+  }
+});
+
+// Отписка от новостей
+router.post('/newsletter/unsubscribe', async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Отсутствует токен отписки'
+      });
+    }
+    
+    const result = await unsubscribeByToken(token);
+    
+    return res.status(result.success ? 200 : 400).json({
+      success: result.success,
+      message: result.message
+    });
+  } catch (error) {
+    console.error('[API] Ошибка при отписке от новостей:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера при отписке от новостей'
+    });
+  }
+});
+
+// Получение всех подписок на новости
+router.get('/newsletter/subscriptions', async (req, res) => {
+  try {
+    console.log('[API] Запрос на получение всех подписок на новости');
+    
+    const result = await getAllNewsletterSubscriptions();
+    
+    if (result.success) {
+      console.log(`[API] Успешно получены ${result.data.length} подписок`);
+      return res.json({
+        success: true,
+        subscriptions: result.data, // Используем subscriptions вместо data для совместимости
+        data: result.data // Оставляем и data для совместимости
+      });
+    } else {
+      console.error(`[API] Ошибка при получении подписок: ${result.message}`);
+      return res.status(500).json({
+        success: false,
+        message: result.message
+      });
+    }
+  } catch (error) {
+    console.error('[API] Ошибка при обработке запроса на получение подписок:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера при получении подписок'
+    });
+  }
+});
+
+// Обновление статуса подписки (для админки)
+router.patch('/admin/newsletter/:id', async (req, res) => {
+  try {
+    // TODO: Добавить проверку аутентификации администратора
+    
+    const { id } = req.params;
+    const status = req.body;
+    
+    if (typeof status.isActive !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'Необходимо указать статус подписки (isActive)'
+      });
+    }
+    
+    const result = await updateSubscriptionStatus(id, status);
+    
+    return res.status(result.success ? 200 : 400).json({
+      success: result.success,
+      message: result.message
+    });
+  } catch (error) {
+    console.error(`[API] Ошибка при обновлении статуса подписки ${req.params.id}:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера при обновлении статуса подписки'
+    });
+  }
+});
+
+// Удаление подписки (для админки)
+router.delete('/admin/newsletter/:id', async (req, res) => {
+  try {
+    // TODO: Добавить проверку аутентификации администратора
+    
+    const { id } = req.params;
+    
+    const result = await deleteSubscription(id);
+    
+    return res.status(result.success ? 200 : 400).json({
+      success: result.success,
+      message: result.message
+    });
+  } catch (error) {
+    console.error(`[API] Ошибка при удалении подписки ${req.params.id}:`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера при удалении подписки'
+    });
+  }
+});
+
+// Удаление подписки на новости
+router.delete('/newsletter/subscriptions/:id', async (req, res) => {
+  try {
+    const subscriptionId = req.params.id;
+    console.log(`[API] Запрос на удаление подписки с ID ${subscriptionId}`);
+    
+    const result = await deleteSubscription(subscriptionId);
+    
+    if (result.success) {
+      console.log(`[API] Успешно удалена подписка с ID ${subscriptionId}`);
+      return res.json({
+        success: true,
+        message: 'Подписка успешно удалена'
+      });
+    } else {
+      console.error(`[API] Ошибка при удалении подписки: ${result.message}`);
+      return res.status(400).json({
+        success: false,
+        message: result.message
+      });
+    }
+  } catch (error) {
+    console.error('[API] Ошибка при обработке запроса на удаление подписки:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера при удалении подписки'
+    });
+  }
+});
+
+// Обновление статуса подписки
+router.patch('/newsletter/subscriptions/:id', async (req, res) => {
+  try {
+    const subscriptionId = req.params.id;
+    const updateData = req.body;
+    console.log(`[API] Запрос на обновление подписки с ID ${subscriptionId}:`, updateData);
+    
+    const result = await updateSubscriptionStatus(subscriptionId, updateData);
+    
+    if (result.success) {
+      console.log(`[API] Успешно обновлен статус подписки с ID ${subscriptionId}`);
+      return res.json({
+        success: true,
+        message: 'Статус подписки успешно обновлен'
+      });
+    } else {
+      console.error(`[API] Ошибка при обновлении подписки: ${result.message}`);
+      return res.status(400).json({
+        success: false,
+        message: result.message
+      });
+    }
+  } catch (error) {
+    console.error('[API] Ошибка при обработке запроса на обновление подписки:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Внутренняя ошибка сервера при обновлении подписки'
     });
   }
 });

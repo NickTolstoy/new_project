@@ -20,8 +20,8 @@ const item: Variants = {
   show: { opacity: 1, y: 0 }
 };
 
-// Анимация буквы на hover
-const letterVariants: Variants = {
+// Анимация логотипа на hover
+const logoVariants: Variants = {
   hover: { 
     scale: 1.2, 
     rotate: [0, -5, 5, -5, 0],
@@ -44,16 +44,16 @@ const cardBackgroundVariants: Variants = {
 };
 
 const Brands = () => {
-  // Массив брендов (в реальном проекте здесь можно использовать изображения)
+  // Массив брендов с логотипами
   const brands = [
-    { id: 1, name: 'Tesla', color: '#E82127' },
-    { id: 2, name: 'Nissan', color: '#C3002F' },
-    { id: 3, name: 'BMW', color: '#0066B1' },
-    { id: 4, name: 'Audi', color: '#BB0A30' },
-    { id: 5, name: 'Jaguar', color: '#9E1B32' },
-    { id: 6, name: 'BYD', color: '#FF0000' },
-    { id: 7, name: 'Porsche', color: '#000000' },
-    { id: 8, name: 'NIO', color: '#00A0E9' },
+    { id: 1, name: 'Tesla', color: '#E82127', logo: '/images/brands/tesla.webp' },
+    { id: 2, name: 'Nissan', color: '#C3002F', logo: '/images/brands/nissan.webp' },
+    { id: 3, name: 'BMW', color: '#0066B1', logo: '/images/brands/BMW.webp' },
+    { id: 4, name: 'Audi', color: '#BB0A30', logo: '/images/brands/Audi.webp' },
+    { id: 5, name: 'Jaguar', color: '#9E1B32', logo: '/images/brands/Jaguar.webp' },
+    { id: 6, name: 'BYD', color: '#FF0000', logo: '/images/brands/BYD.webp' },
+    { id: 7, name: 'Porsche', color: '#000000', logo: '/images/brands/Porsche.webp' },
+    { id: 8, name: 'NIO', color: '#00A0E9', logo: '/images/brands/NIO.webp' },
   ];
   
   return (
@@ -95,13 +95,16 @@ const Brands = () => {
               
               {/* Содержимое */}
               <div className="relative z-10 flex flex-col items-center">
-                <motion.span 
-                  className="text-4xl md:text-5xl font-bold transition-all duration-300 group-hover:text-shadow-glow"
-                  style={{ color: brand.color }}
-                  variants={letterVariants}
+                <motion.div
+                  className="w-36 h-36 md:w-48 md:h-48 transition-all duration-300 group-hover:filter group-hover:drop-shadow-glow"
+                  variants={logoVariants}
                 >
-                  {brand.name.charAt(0)}
-                </motion.span>
+                  <img 
+                    src={brand.logo} 
+                    alt={`${brand.name} Logo`} 
+                    className="w-full h-full object-contain"
+                  />
+                </motion.div>
                 <span className="text-xl mt-3 font-medium transform transition-all duration-300 group-hover:translate-y-1">{brand.name}</span>
               </div>
               

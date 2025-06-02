@@ -1,8 +1,20 @@
 import React, { useEffect, useState, FormEvent } from 'react'
 import { motion } from 'framer-motion'
-import { submitContactForm } from '../utils/contactFormService'
+import { submitContactForm } from '../utils/contactFormService.ts'
 import { useLocation } from 'react-router-dom'
-import { InputMask, ContactFormData } from '../components/shared/FormComponents'
+import { InputMask } from '../components/shared/FormComponents.tsx'
+
+// Определим интерфейс для данных формы локально
+interface ContactFormData {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  carModel: string;
+  service: string;
+  message: string;
+  date: string;
+}
 
 const Contacts = () => {
   const [name, setName] = useState('')
